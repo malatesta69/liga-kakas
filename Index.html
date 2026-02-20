@@ -1,0 +1,2263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎰 LIGA KAKAS LEGENDARY</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&display=swap');
+  :root {
+    --gold: #FFD700; --gold2: #FFA500; --dark: #0a0a0f; --dark2: #111118;
+    --dark3: #1a1a25; --card: #15151f; --card2: #1e1e2e; --green: #00ff88;
+    --red: #ff3355; --blue: #4488ff; --purple: #9944ff; --text: #e8e8f0; --muted: #888899;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--dark); color:var(--text); font-family:'Barlow Condensed',sans-serif; min-height:100vh; overflow-x:hidden; }
+
+  /* LOGIN */
+  #loginScreen { position:fixed; inset:0; background:var(--dark); display:flex; align-items:center; justify-content:center; z-index:1000; background-image:radial-gradient(ellipse at 20% 50%,rgba(255,215,0,.05) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(153,68,255,.05) 0%,transparent 40%); }
+  .login-box { background:var(--card); border:1px solid rgba(255,215,0,.2); border-radius:16px; padding:48px 40px; width:400px; max-width:95vw; text-align:center; box-shadow:0 0 60px rgba(255,215,0,.08),0 20px 60px rgba(0,0,0,.5); animation:loginAppear .6s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes loginAppear { from{opacity:0;transform:translateY(30px) scale(.95)} to{opacity:1;transform:translateY(0) scale(1)} }
+  .login-logo { font-family:'Bebas Neue',sans-serif; font-size:52px; letter-spacing:4px; background:linear-gradient(135deg,var(--gold),var(--gold2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; line-height:1; margin-bottom:4px; }
+  .login-subtitle { color:var(--muted); font-size:13px; letter-spacing:3px; text-transform:uppercase; margin-bottom:28px; }
+  .player-select { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+  .player-btn { background:var(--dark3); border:1px solid rgba(255,255,255,.08); color:var(--text); padding:12px 8px; border-radius:10px; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:600; cursor:pointer; transition:all .2s; letter-spacing:1px; }
+  .player-btn:hover { border-color:var(--gold); color:var(--gold); background:rgba(255,215,0,.06); transform:translateY(-2px); }
+  .player-btn.selected { border-color:var(--gold); background:rgba(255,215,0,.12); color:var(--gold); }
+  .admin-btn { background:rgba(153,68,255,.1); border-color:rgba(153,68,255,.3); color:#bb88ff; grid-column:1/-1; font-size:13px; letter-spacing:2px; }
+  .admin-btn:hover,.admin-btn.selected { border-color:var(--purple); color:var(--purple); background:rgba(153,68,255,.2); }
+  .password-input { width:100%; background:var(--dark3); border:1px solid rgba(255,255,255,.1); color:var(--text); padding:14px 16px; border-radius:10px; font-family:'Barlow Condensed',sans-serif; font-size:16px; letter-spacing:4px; margin-bottom:14px; text-align:center; transition:border-color .2s; }
+  .password-input:focus { outline:none; border-color:var(--gold); }
+  .login-btn { width:100%; background:linear-gradient(135deg,var(--gold),var(--gold2)); color:var(--dark); border:none; padding:15px; border-radius:10px; font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:3px; cursor:pointer; transition:all .2s; }
+  .login-btn:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(255,215,0,.3); }
+  .login-error { color:var(--red); font-size:13px; margin-top:10px; min-height:20px; letter-spacing:1px; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+  .shake { animation:shake .3s; }
+
+  /* APP */
+  #app { display:none; }
+  .header { background:linear-gradient(180deg,rgba(255,215,0,.05) 0%,transparent 100%); border-bottom:1px solid rgba(255,215,0,.15); padding:0 24px; display:flex; align-items:center; justify-content:space-between; height:64px; position:sticky; top:0; z-index:100; backdrop-filter:blur(10px); }
+  .header-logo { font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:3px; background:linear-gradient(135deg,var(--gold),var(--gold2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .user-badge { background:rgba(255,215,0,.1); border:1px solid rgba(255,215,0,.2); color:var(--gold); padding:6px 14px; border-radius:20px; font-size:14px; font-weight:600; letter-spacing:1px; }
+  .admin-badge { background:rgba(153,68,255,.15); border-color:rgba(153,68,255,.3); color:#bb88ff; }
+  .logout-btn { background:none; border:1px solid rgba(255,255,255,.1); color:var(--muted); padding:6px 12px; border-radius:8px; cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-size:13px; letter-spacing:1px; transition:all .2s; margin-left:10px; }
+  .logout-btn:hover { border-color:var(--red); color:var(--red); }
+  .nav { background:var(--dark2); border-bottom:1px solid rgba(255,255,255,.05); padding:0 24px; display:flex; gap:4px; overflow-x:auto; }
+  .nav-tab { background:none; border:none; color:var(--muted); padding:14px 16px; cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:600; letter-spacing:1px; border-bottom:2px solid transparent; transition:all .2s; white-space:nowrap; }
+  .nav-tab:hover { color:var(--text); }
+  .nav-tab.active { color:var(--gold); border-bottom-color:var(--gold); }
+  .main { padding:24px; max-width:1100px; margin:0 auto; }
+  
+  /* CARDS */
+  .card { background:var(--card); border:1px solid rgba(255,255,255,.06); border-radius:14px; padding:20px; margin-bottom:16px; }
+  .card-title { font-size:14px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:16px; }
+  .card-value { font-family:'Bebas Neue',sans-serif; font-size:36px; letter-spacing:2px; }
+  .positive { color:var(--green); }
+  .negative { color:var(--red); }
+  .section-title { font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:3px; color:var(--gold); margin-bottom:20px; }
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+  .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  @media(max-width:600px) { .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; } }
+  
+  /* RANKING */
+  .rank-card { background:var(--card); border:1px solid rgba(255,255,255,.06); border-radius:14px; padding:16px 20px; display:flex; align-items:center; gap:16px; margin-bottom:10px; transition:all .2s; }
+  .rank-card:hover { border-color:rgba(255,215,0,.2); }
+  .rank-num { font-family:'Bebas Neue',sans-serif; font-size:32px; color:var(--muted); min-width:40px; }
+  .rank-num.gold { color:var(--gold); }
+  .rank-num.silver { color:#c0c0c0; }
+  .rank-num.bronze { color:#cd7f32; }
+  .player-name { font-size:20px; font-weight:700; letter-spacing:1px; flex:1; }
+  .banca-val { font-family:'Bebas Neue',sans-serif; font-size:28px; }
+  .profit-pos { color:var(--green); }
+  .profit-neg { color:var(--red); }
+  
+  /* STATS */
+  .mini-stat { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid rgba(255,255,255,.04); }
+  .mini-stat:last-child { border-bottom:none; }
+  .mini-stat-label { color:var(--muted); font-size:14px; letter-spacing:1px; }
+  .mini-stat-value { font-weight:700; font-size:18px; }
+  
+  /* TABLE */
+  .data-table { width:100%; border-collapse:collapse; font-size:14px; }
+  .data-table th { color:var(--muted); font-size:12px; letter-spacing:2px; text-transform:uppercase; padding:10px 12px; text-align:left; border-bottom:1px solid rgba(255,255,255,.08); }
+  .data-table td { padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.03); }
+  .data-table tr:hover td { background:rgba(255,255,255,.02); }
+  
+  /* BADGES */
+  .badge-win { background:rgba(0,255,136,.15); color:var(--green); border:1px solid rgba(0,255,136,.3); padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; letter-spacing:1px; }
+  .badge-lose { background:rgba(255,51,85,.15); color:var(--red); border:1px solid rgba(255,51,85,.3); padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; letter-spacing:1px; }
+  .badge-pending { background:rgba(255,165,0,.15); color:var(--gold2); border:1px solid rgba(255,165,0,.3); padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; letter-spacing:1px; }
+  .badge-approval { background:rgba(68,136,255,.15); color:var(--blue); border:1px solid rgba(68,136,255,.3); padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; letter-spacing:1px; }
+  
+  /* FORMS */
+  .form-group { margin-bottom:16px; }
+  .form-label { display:block; color:var(--muted); font-size:12px; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+  .form-input,.form-select { width:100%; background:var(--dark3); border:1px solid rgba(255,255,255,.1); color:var(--text); padding:12px 14px; border-radius:10px; font-family:'Barlow Condensed',sans-serif; font-size:16px; transition:border-color .2s; }
+  .form-input:focus,.form-select:focus { outline:none; border-color:var(--gold); }
+  .form-select option { background:var(--dark3); }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media(max-width:500px) { .form-row { grid-template-columns:1fr; } }
+  .btn-primary { background:linear-gradient(135deg,var(--gold),var(--gold2)); color:var(--dark); border:none; padding:14px 28px; border-radius:10px; font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:2px; cursor:pointer; transition:all .2s; }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(255,215,0,.25); }
+  .btn-primary:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+  .btn-small { background:rgba(0,255,136,.15); border:1px solid rgba(0,255,136,.3); color:var(--green); padding:5px 12px; border-radius:6px; cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-size:13px; letter-spacing:1px; transition:all .2s; }
+  .btn-small:hover { background:rgba(0,255,136,.25); }
+  .btn-danger { background:rgba(255,51,85,.15); border:1px solid rgba(255,51,85,.3); color:var(--red); padding:5px 12px; border-radius:6px; cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-size:13px; letter-spacing:1px; transition:all .2s; }
+  .btn-danger:hover { background:rgba(255,51,85,.25); }
+  .btn-blue { background:rgba(68,136,255,.15); border:1px solid rgba(68,136,255,.3); color:var(--blue); padding:5px 12px; border-radius:6px; cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-size:13px; letter-spacing:1px; transition:all .2s; }
+  .admin-panel { background:rgba(153,68,255,.06); border:1px solid rgba(153,68,255,.15); border-radius:14px; padding:20px; margin-bottom:16px; }
+  .admin-title { color:#bb88ff; font-size:14px; letter-spacing:2px; text-transform:uppercase; margin-bottom:16px; }
+  
+  /* JACKPOT */
+  .jackpot-display { background:linear-gradient(135deg,rgba(255,215,0,.1),rgba(255,165,0,.05)); border:1px solid rgba(255,215,0,.3); border-radius:16px; padding:32px; text-align:center; margin-bottom:20px; }
+  .jackpot-label { color:var(--muted); font-size:13px; letter-spacing:3px; text-transform:uppercase; margin-bottom:8px; }
+  .jackpot-amount { font-family:'Bebas Neue',sans-serif; font-size:64px; letter-spacing:4px; color:var(--gold); line-height:1; }
+  
+  /* RULETA */
+  .ruleta-board { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; max-width:360px; margin:0 auto 20px; }
+  .ruleta-num { width:100%; aspect-ratio:1; border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; cursor:pointer; transition:all .15s; border:2px solid transparent; user-select:none; }
+  .ruleta-num.rojo { background:#c0392b; color:#fff; }
+  .ruleta-num.negro { background:#1a1a1a; color:#fff; border-color:rgba(255,255,255,.2); }
+  .ruleta-num.verde { background:#27ae60; color:#fff; }
+  .ruleta-num.selected { transform:scale(1.15); border-color:var(--gold) !important; box-shadow:0 0 12px rgba(255,215,0,.5); }
+  .ruleta-spinning { font-family:'Bebas Neue',sans-serif; font-size:80px; text-align:center; padding:20px; animation:spin .5s linear infinite; }
+  @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  .ruleta-result { font-family:'Bebas Neue',sans-serif; font-size:80px; text-align:center; padding:20px 0; }
+  
+  /* CASINO TIPOS */
+  .casino-tipo-btn { background:var(--dark3); border:1px solid rgba(255,255,255,.08); color:var(--text); padding:10px 14px; border-radius:10px; cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:600; letter-spacing:1px; transition:all .2s; text-align:center; }
+  .casino-tipo-btn:hover { border-color:var(--gold); color:var(--gold); }
+  .casino-tipo-btn.active { border-color:var(--gold); background:rgba(255,215,0,.1); color:var(--gold); }
+  
+  /* RACHAS */
+  .racha-pos { background:rgba(0,255,136,.1); color:var(--green); border:1px solid rgba(0,255,136,.2); padding:2px 8px; border-radius:4px; font-size:12px; font-weight:700; }
+  .racha-neg { background:rgba(255,51,85,.1); color:var(--red); border:1px solid rgba(255,51,85,.2); padding:2px 8px; border-radius:4px; font-size:12px; font-weight:700; }
+  
+  /* TOAST */
+  .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(80px); background:var(--card2); border:1px solid rgba(255,255,255,.1); border-radius:12px; padding:14px 24px; font-size:15px; font-weight:600; letter-spacing:1px; z-index:9999; transition:transform .3s cubic-bezier(.34,1.56,.64,1); pointer-events:none; }
+  .toast.show { transform:translateX(-50%) translateY(0); }
+  .toast.success { border-color:rgba(0,255,136,.4); color:var(--green); }
+  .toast.error { border-color:rgba(255,51,85,.4); color:var(--red); }
+  
+  /* NOTIF BADGE */
+  .notif-badge { background:var(--red); color:#fff; border-radius:50%; width:18px; height:18px; font-size:11px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; margin-left:4px; vertical-align:middle; }
+  
+  /* PRESTAMOS */
+  .loan-card { background:var(--dark3); border:1px solid rgba(255,255,255,.06); border-radius:10px; padding:14px; margin-bottom:10px; }
+  
+  /* TIENDA */
+  .shop-item { background:var(--dark3); border:1px solid rgba(255,215,0,.1); border-radius:12px; padding:16px; text-align:center; cursor:pointer; transition:all .2s; }
+  .shop-item:hover { border-color:rgba(255,215,0,.3); transform:translateY(-2px); }
+  .shop-price { font-family:'Bebas Neue',sans-serif; font-size:28px; color:var(--gold); }
+
+  /* RULETA 3D CANVAS */
+  #roulette-canvas { border-radius:50%; box-shadow:0 0 40px rgba(255,215,0,.3), 0 0 80px rgba(0,0,0,.8); display:block; margin:0 auto; }
+  #roulette-wrap { position:relative; display:inline-block; }
+  #roulette-pointer { position:absolute; top:-12px; left:50%; transform:translateX(-50%); width:0; height:0; border-left:10px solid transparent; border-right:10px solid transparent; border-top:24px solid var(--gold); filter:drop-shadow(0 0 6px rgba(255,215,0,.8)); z-index:10; }
+  #center-display { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; background:rgba(0,0,0,.85); border-radius:50%; width:80px; height:80px; display:flex; align-items:center; justify-content:center; border:3px solid rgba(255,215,0,.4); pointer-events:none; }
+  #center-num { font-family:'Bebas Neue',sans-serif; font-size:36px; color:var(--gold); line-height:1; }
+
+  /* EVENTOS POOL */
+  .evento-card { background:var(--dark3); border:1px solid rgba(255,215,0,.15); border-radius:14px; padding:18px; margin-bottom:14px; }
+  .evento-card.activo { border-color:rgba(0,255,136,.3); }
+  .evento-card.cerrado { border-color:rgba(255,51,85,.2); opacity:.8; }
+  .evento-cuota-badge { background:rgba(255,215,0,.1); color:var(--gold); border:1px solid rgba(255,215,0,.3); padding:4px 12px; border-radius:20px; font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:1px; }
+  .apostadores-list { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+  .apostador-chip { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:20px; padding:4px 12px; font-size:13px; font-weight:600; }
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">🎰 LIGA</div>
+    <div class="login-logo" style="font-size:36px;margin-top:-8px">KAKAS</div>
+    <div class="login-subtitle">Legendary · Temporada 2026</div>
+    <div class="player-select">
+      <button class="player-btn" onclick="selectUser('Alex')">🎯 Alex</button>
+      <button class="player-btn" onclick="selectUser('Nicolas')">🎲 Nicolas</button>
+      <button class="player-btn" onclick="selectUser('Raúl')">🔥 Raúl</button>
+      <button class="player-btn" onclick="selectUser('Pablo')">⚡ Pablo</button>
+      <button class="player-btn" onclick="selectUser('Mauro')">💀 Mauro</button>
+      <button class="player-btn" onclick="selectUser('Manuel')">👑 Manuel</button>
+      <button class="player-btn admin-btn" onclick="selectUser('ADMIN')">⚙️ ADMINISTRADOR</button>
+    </div>
+    <input type="password" class="password-input" id="pwInput" placeholder="Contraseña" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">ENTRAR</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="header">
+    <div class="header-logo">🎰 Liga Kakas</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="user-badge" id="userBadge"></span>
+      <button class="logout-btn" onclick="logout()">SALIR</button>
+    </div>
+  </div>
+  <div class="nav" id="mainNav"></div>
+  <div class="main">
+    <div id="mainContent"></div>
+  </div>
+</div>
+
+<!-- SUPABASE VIA FETCH REST -->
+<script>
+// ============================================================
+// CAPA DE PERSISTENCIA — Supabase REST API (fetch directo)
+// ============================================================
+const SUPABASE_URL = 'https://quskapvvehyhcssbbeog.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1c2thcHZ2ZWh5aGNzc2JiZW9nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1OTM1NzksImV4cCI6MjA4NzE2OTU3OX0.BIKQOAK2a-VGT63kJn7RFEXVyxgek9dSOmSE5qvJciU';
+
+async function sbFetch(path, method = 'GET', body = null, extraHeaders = {}) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    method,
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': method === 'POST' ? 'return=representation' : '',
+      ...extraHeaders
+    },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(err);
+  }
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+
+const DB = {
+  async getAll(table) {
+    const data = await sbFetch(`${table}?select=*&order=id.asc`);
+    return data || [];
+  },
+  async insert(table, row) {
+    const clean = { ...row };
+    delete clean.id;
+    const data = await sbFetch(table, 'POST', clean, { 'Prefer': 'return=representation' });
+    return Array.isArray(data) ? data[0] : data;
+  },
+  async update(table, id, fields) {
+    await sbFetch(`${table}?id=eq.${id}`, 'PATCH', fields, { 'Prefer': 'return=minimal' });
+  },
+  async delete(table, id) {
+    await sbFetch(`${table}?id=eq.${id}`, 'DELETE', null, { 'Prefer': 'return=minimal' });
+  },
+  async getConfig(clave) {
+    const data = await sbFetch(`config?clave=eq.${encodeURIComponent(clave)}&select=valor`);
+    return data && data.length > 0 ? data[0].valor : null;
+  },
+  async setConfig(clave, valor) {
+    await sbFetch('config', 'POST', { clave, valor: String(valor) }, {
+      'Prefer': 'resolution=merge-duplicates,return=minimal'
+    });
+  },
+  // Cache local para inmunidades (datos no críticos)
+  _get(key) {
+    try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch(e) { return null; }
+  },
+  _set(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch(e) {}
+  }
+};
+
+// ============================================================
+// CONFIGURACIÓN FINANCIERA
+// WIN: hacienda 6% ganancia neta, jackpot 10% ganancia neta
+// LOSE: hacienda 20% de lo apostado, jackpot 80% de lo apostado
+// ============================================================
+const CFG = {
+  HACIENDA_WIN_PCT: 6,   // % de ganancia bruta que va a hacienda en WIN
+  JACKPOT_WIN_PCT: 10,   // % de ganancia bruta que va a jackpot en WIN
+  HACIENDA_LOSE_PCT: 20, // % de apuesta que va a hacienda en LOSE
+  JACKPOT_LOSE_PCT: 80,  // % de apuesta que va a jackpot en LOSE
+};
+
+// Números rojos de ruleta europea
+const ROJOS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+
+// ============================================================
+// PASSWORDS
+// ============================================================
+let PASSWORDS = {
+  'Alex':    'qx7!mT2k',
+  'Nicolas': 'Lv#9wR4j',
+  'Raúl':    'bZ3&nF8p',
+  'Pablo':   'Yw5$cK6s',
+  'Mauro':   'Gd1@hX9e',
+  'Manuel':  'Rn4%vB7q',
+  'ADMIN':   'KaKas_2026#Admin!'
+};
+
+// ============================================================
+// STATE & DATA
+// ============================================================
+let STATE = { currentUser: null, isAdmin: false, activePage: 'inicio' };
+
+let DATA = {
+  jugadores: ['Alex', 'Nicolas', 'Raúl', 'Pablo', 'Mauro', 'Manuel'],
+  bancas: {},
+  apuestas: [],
+  kakas: [],
+  prestamos: [],
+  tienda_compras: [],
+  retos: [],
+  eventos: [],
+  jackpotExtra: 0,
+  nextBetId: 1
+};
+
+// Apuestas históricas del Excel (se cargan solo si la BD está vacía)
+const APUESTAS_EXCEL = [
+  { jugador:'Mauro',   evento:'Leifer viene en chandal',       apuesta:200, cuota:1.8, resultado:'WIN' },
+  { jugador:'Mauro',   evento:'Leifer se cambia sudadera',     apuesta:100, cuota:1.3, resultado:'WIN' },
+  { jugador:'Alex',    evento:'Bowling no se cambia',          apuesta:100, cuota:1.5, resultado:'WIN' },
+  { jugador:'Pablo',   evento:'Bowling se cambia de mallas',   apuesta:200, cuota:1.3, resultado:'LOSE' },
+  { jugador:'Raúl',    evento:'Ramón da exámenes',             apuesta:300, cuota:2,   resultado:'LOSE' },
+  { jugador:'Mauro',   evento:'Ramón no da exámenes',          apuesta:100, cuota:2,   resultado:'WIN' },
+  { jugador:'Pablo',   evento:'Ramón da exámenes',             apuesta:250, cuota:2,   resultado:'LOSE' },
+  { jugador:'Nicolas', evento:'Ramón da exámenes',             apuesta:100, cuota:2,   resultado:'LOSE' },
+  { jugador:'Alex',    evento:'Ramón da exámenes',             apuesta:250, cuota:2,   resultado:'LOSE' },
+  { jugador:'Manuel',  evento:'Ramón no da exámenes',          apuesta:1000,cuota:2,   resultado:'WIN' },
+  { jugador:'Raúl',    evento:'No hay examen, economía',       apuesta:200, cuota:1.4, resultado:'WIN' },
+  { jugador:'Raúl',    evento:'Ramón no viene',                apuesta:300, cuota:4,   resultado:'LOSE' },
+  { jugador:'Alex',    evento:'Ramón viene',                   apuesta:200, cuota:1.5, resultado:'WIN' },
+  { jugador:'Pablo',   evento:'Ramon viene',                   apuesta:800, cuota:1.5, resultado:'WIN' },
+  { jugador:'Nicolas', evento:'Ramón viene',                   apuesta:300, cuota:1.5, resultado:'WIN' },
+];
+
+// ============================================================
+// LOADING OVERLAY
+// ============================================================
+function showLoadingOverlay(show) {
+  let el = document.getElementById('loadingOverlay');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'loadingOverlay';
+    el.innerHTML = `<div style="text-align:center">
+      <div style="font-size:50px;margin-bottom:16px">🎰</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:4px;color:#FFD700">Cargando Liga...</div>
+      <div style="color:#888899;font-size:14px;margin-top:8px;letter-spacing:2px">Cargando datos...</div>
+    </div>`;
+    el.style.cssText = 'position:fixed;inset:0;background:#0a0a0f;display:flex;align-items:center;justify-content:center;z-index:9999;';
+    document.body.appendChild(el);
+  }
+  el.style.display = show ? 'flex' : 'none';
+}
+
+// ============================================================
+// STORAGE — LOAD ALL DATA
+// ============================================================
+async function loadFromSupabase() {
+  showLoadingOverlay(true);
+  try {
+    const [apuestas, kakas, prestamos, retos, eventos] = await Promise.all([
+      DB.getAll('apuestas'),
+      DB.getAll('kakas'),
+      DB.getAll('prestamos'),
+      DB.getAll('retos'),
+      DB.getAll('eventos'),
+    ]);
+
+    DATA.apuestas = apuestas.map(a => ({...a, apuesta:+a.apuesta, cuota:+a.cuota, ganancia:+a.ganancia, hacienda:+(a.hacienda||0), jackpot_contrib:+(a.jackpot_contrib||0)}));
+    DATA.kakas = kakas.map(k => ({...k, multa:+k.multa}));
+    DATA.prestamos = prestamos.map(p => ({...p, cantidad:+p.cantidad, interes_pct:+p.interes_pct, total_devolver:+p.total_devolver}));
+    DATA.retos = retos.map(r => ({...r, penalizacion:+r.penalizacion}));
+    DATA.eventos = eventos;
+
+    const jackpotVal = await DB.getConfig('jackpotExtra');
+    if (jackpotVal) DATA.jackpotExtra = +jackpotVal;
+    const pwVal = await DB.getConfig('passwords');
+    if (pwVal) try { Object.assign(PASSWORDS, JSON.parse(pwVal)); } catch(e) {}
+    const seeded = await DB.getConfig('seeded');
+
+    // Si la BD está vacía, cargar apuestas del Excel
+    if (!seeded && DATA.apuestas.length === 0) {
+      let totalJackpot = 0;
+      const rows = APUESTAS_EXCEL.map((bet) => {
+        const fin = calcFinanciero(bet.apuesta, bet.cuota, bet.resultado);
+        totalJackpot += fin.jackpot_contrib;
+        return {
+          fecha: '2026-02-01', jugador: bet.jugador, evento: bet.evento,
+          apuesta: bet.apuesta, cuota: bet.cuota, resultado: bet.resultado,
+          ganancia: fin.ganancia, hacienda: fin.hacienda, jackpot_contrib: fin.jackpot_contrib,
+          cuota_propuesta: null, estado_admin: 'aprobada'
+        };
+      });
+      // Insertar en Supabase
+      for (const row of rows) {
+        const inserted = await DB.insert('apuestas', row);
+        DATA.apuestas.push(inserted);
+      }
+      await DB.setConfig('jackpotExtra', String(totalJackpot));
+      await DB.setConfig('seeded', '1');
+      DATA.jackpotExtra = totalJackpot;
+    }
+
+    if (DATA.apuestas.length) DATA.nextBetId = Math.max(...DATA.apuestas.map(a=>a.id)) + 1;
+    recalcBancas();
+  } catch (err) {
+    console.error(err);
+    showToast('⚠ Error cargando datos: ' + err.message, 'error');
+  } finally {
+    showLoadingOverlay(false);
+  }
+}
+
+// ============================================================
+// STORAGE CRUD — APUESTAS
+// ============================================================
+async function saveApuesta(bet) {
+  const newRow = await DB.insert('apuestas', {
+    fecha: bet.fecha, jugador: bet.jugador, evento: bet.evento,
+    apuesta: bet.apuesta, cuota: bet.cuota, resultado: bet.resultado,
+    ganancia: bet.ganancia, hacienda: bet.hacienda||0, jackpot_contrib: bet.jackpot_contrib||0,
+    cuota_propuesta: bet.cuota_propuesta||null, estado_admin: bet.estado_admin||'aprobada'
+  });
+  return newRow.id;
+}
+async function updateApuestaResultado(id, resultado, ganancia, hacienda, jackpot_contrib) {
+  await DB.update('apuestas', id, { resultado, ganancia, hacienda, jackpot_contrib });
+}
+async function updateApuestaAdmin(id, fields) {
+  await DB.update('apuestas', id, fields);
+}
+async function deleteApuestaDB(id) {
+  await DB.delete('apuestas', id);
+}
+
+// ============================================================
+// STORAGE CRUD — KAKAS
+// ============================================================
+async function saveKaka(k) {
+  const newRow = await DB.insert('kakas', {
+    fecha: k.fecha, jugador: k.jugador, kaka: k.kaka, multa: k.multa, notas: k.notas||''
+  });
+  return newRow.id;
+}
+async function deleteKakaDB(id) {
+  await DB.delete('kakas', id);
+}
+
+// ============================================================
+// STORAGE CRUD — CONFIG
+// ============================================================
+async function saveConfig(clave, valor) {
+  await DB.setConfig(clave, valor);
+}
+
+// ============================================================
+// STORAGE CRUD — PRESTAMOS
+// ============================================================
+async function savePrestamo(p) {
+  const newRow = await DB.insert('prestamos', p);
+  return newRow.id;
+}
+async function updatePrestamo(id, fields) {
+  await DB.update('prestamos', id, fields);
+}
+
+// ============================================================
+// STORAGE CRUD — RETOS
+// ============================================================
+async function saveReto(r) {
+  const newRow = await DB.insert('retos', r);
+  return newRow.id;
+}
+async function updateReto(id, fields) {
+  await DB.update('retos', id, fields);
+}
+
+// ============================================================
+// STORAGE CRUD — EVENTOS POOL
+// ============================================================
+async function saveEvento(e) {
+  const newRow = await DB.insert('eventos', e);
+  return newRow.id;
+}
+async function updateEvento(id, fields) {
+  await DB.update('eventos', id, fields);
+  const ev = DATA.eventos.find(e=>e.id===id);
+  if (ev) Object.assign(ev, fields);
+}
+
+// ============================================================
+// CÁLCULOS FINANCIEROS
+// ============================================================
+function calcFinanciero(apuesta, cuota, resultado) {
+  // resultado: WIN | LOSE | PENDIENTE | AJUSTE+/- | CASINO
+  if (resultado === 'WIN') {
+    const bruto = apuesta * cuota;
+    const hacienda = bruto * (CFG.HACIENDA_WIN_PCT / 100);
+    const jackpot_contrib = bruto * (CFG.JACKPOT_WIN_PCT / 100);
+    const ganancia = bruto - apuesta - hacienda - jackpot_contrib;
+    return { ganancia, hacienda, jackpot_contrib };
+  }
+  if (resultado === 'LOSE') {
+    const hacienda = apuesta * (CFG.HACIENDA_LOSE_PCT / 100);
+    const jackpot_contrib = apuesta * (CFG.JACKPOT_LOSE_PCT / 100);
+    return { ganancia: -apuesta, hacienda, jackpot_contrib };
+  }
+  if (resultado === 'AJUSTE+') return { ganancia: apuesta, hacienda: 0, jackpot_contrib: 0 };
+  if (resultado === 'AJUSTE-') return { ganancia: -apuesta, hacienda: 0, jackpot_contrib: 0 };
+  return { ganancia: 0, hacienda: 0, jackpot_contrib: 0 };
+}
+
+function recalcBancas() {
+  DATA.jugadores.forEach(j => {
+    const ganancias = DATA.apuestas.filter(a => a.jugador === j).reduce((s,a) => s+(a.ganancia||0), 0);
+    const multas = DATA.kakas.filter(k => k.jugador === j).reduce((s,k) => s+(k.multa||0), 0);
+    const prestamosRecibidos = DATA.prestamos.filter(p => p.prestamista === j && p.estado === 'PENDIENTE').reduce((s,p) => s+(p.cantidad||0), 0);
+    const prestamosDebidos = DATA.prestamos.filter(p => p.prestatario === j && p.estado === 'PENDIENTE').reduce((s,p) => s+(p.total_devolver||0), 0);
+    const prestamosCobrados = DATA.prestamos.filter(p => p.prestamista === j && p.estado === 'PAGADO').reduce((s,p) => s+(p.total_devolver||0), 0);
+    DATA.bancas[j] = 1000 + ganancias - multas - prestamosDebidos + prestamosCobrados;
+  });
+}
+
+function getJackpot() {
+  const fromBets = DATA.apuestas.reduce((s,a) => s+(a.jackpot_contrib||0), 0);
+  return fromBets + DATA.jackpotExtra;
+}
+
+function getHacienda() {
+  return DATA.apuestas.reduce((s,a) => s+(a.hacienda||0), 0);
+}
+
+function getPlayerStats(j) {
+  const bets = DATA.apuestas.filter(a => a.jugador === j && a.estado_admin !== 'pendiente_admin');
+  const wins = bets.filter(a => a.resultado === 'WIN').length;
+  const loses = bets.filter(a => a.resultado === 'LOSE').length;
+  const total = wins + loses;
+  const racha = calcRacha(j);
+  return { bets, wins, loses, total, winRate: total > 0 ? (wins/total*100).toFixed(1) : '0.0', banca: DATA.bancas[j], racha };
+}
+
+function calcRacha(j) {
+  const bets = DATA.apuestas.filter(a => a.jugador === j && (a.resultado === 'WIN' || a.resultado === 'LOSE')).slice(-10).reverse();
+  if (!bets.length) return { n: 0, tipo: '-' };
+  const last = bets[0].resultado;
+  let count = 0;
+  for (const b of bets) { if (b.resultado === last) count++; else break; }
+  return { n: count, tipo: last };
+}
+
+function pendientesAdmin() {
+  return DATA.apuestas.filter(a => a.estado_admin === 'pendiente_admin').length;
+}
+
+// ============================================================
+// RULETA — LÓGICA
+// ============================================================
+const CASINO_TIPOS = {
+  'Rojo':         { cuota: 2,  desc: 'Números rojos', check: n => ROJOS.has(n) },
+  'Negro':        { cuota: 2,  desc: 'Números negros', check: n => n > 0 && !ROJOS.has(n) },
+  'Par':          { cuota: 2,  desc: 'Números pares', check: n => n > 0 && n % 2 === 0 },
+  'Impar':        { cuota: 2,  desc: 'Números impares', check: n => n > 0 && n % 2 !== 0 },
+  '1-18':         { cuota: 2,  desc: 'Del 1 al 18', check: n => n >= 1 && n <= 18 },
+  '19-36':        { cuota: 2,  desc: 'Del 19 al 36', check: n => n >= 19 && n <= 36 },
+  '1ª Docena':    { cuota: 3,  desc: 'Del 1 al 12', check: n => n >= 1 && n <= 12 },
+  '2ª Docena':    { cuota: 3,  desc: 'Del 13 al 24', check: n => n >= 13 && n <= 24 },
+  '3ª Docena':    { cuota: 3,  desc: 'Del 25 al 36', check: n => n >= 25 && n <= 36 },
+  'Col 1':        { cuota: 3,  desc: '1,4,7...34', check: n => n > 0 && n % 3 === 1 },
+  'Col 2':        { cuota: 3,  desc: '2,5,8...35', check: n => n > 0 && n % 3 === 2 },
+  'Col 3':        { cuota: 3,  desc: '3,6,9...36', check: n => n > 0 && n % 3 === 0 },
+  'Número':       { cuota: 36, desc: 'Número exacto (0-36)', check: (n, num) => n === parseInt(num) },
+  'Blackjack':    { cuota: 2,  desc: 'Ganas la mano', check: null },
+  'Blackjack 21': { cuota: 2.5, desc: 'Natural 21', check: null },
+};
+
+function getNumColor(n) {
+  if (n === 0) return 'verde';
+  return ROJOS.has(n) ? 'rojo' : 'negro';
+}
+
+function spinRuleta() {
+  return Math.floor(Math.random() * 37); // 0-36
+}
+
+// ============================================================
+// LOGIN
+// ============================================================
+let selectedUser = null;
+
+function selectUser(user) {
+  selectedUser = user;
+  document.querySelectorAll('.player-btn').forEach(b => b.classList.remove('selected'));
+  event.target.classList.add('selected');
+  document.getElementById('pwInput').focus();
+}
+
+function doLogin() {
+  if (!selectedUser) { document.getElementById('loginError').textContent = '⚠ Selecciona un jugador'; return; }
+  const pw = document.getElementById('pwInput').value;
+  if (pw === PASSWORDS[selectedUser]) {
+    STATE.currentUser = selectedUser;
+    STATE.isAdmin = selectedUser === 'ADMIN';
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    const badge = document.getElementById('userBadge');
+    badge.textContent = STATE.isAdmin ? '👑 ADMIN' : '🎰 ' + selectedUser;
+    badge.className = 'user-badge' + (STATE.isAdmin ? ' admin-badge' : '');
+    recalcBancas();
+    buildNav();
+    showPage('inicio');
+  } else {
+    document.getElementById('loginError').textContent = '❌ Contraseña incorrecta';
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwInput').classList.add('shake');
+    setTimeout(() => document.getElementById('pwInput').classList.remove('shake'), 500);
+  }
+}
+
+function logout() {
+  selectedUser = null; STATE.currentUser = null;
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('pwInput').value = '';
+  document.getElementById('loginError').textContent = '';
+  document.querySelectorAll('.player-btn').forEach(b => b.classList.remove('selected'));
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+const PLAYER_TABS = [
+  { id: 'inicio', label: '🏆 Clasificación' },
+  { id: 'apuestas', label: '📝 Mis Apuestas' },
+  { id: 'nueva', label: '➕ Apostar' },
+  { id: 'eventos', label: '🎯 Eventos' },
+  { id: 'casino', label: '🎡 Casino' },
+  { id: 'historial', label: '📊 Historial' },
+  { id: 'jackpot', label: '🎰 Jackpot' },
+  { id: 'prestamos', label: '🤝 Préstamos' },
+  { id: 'retos', label: '⚔️ Retos' },
+  { id: 'tienda', label: '🛒 Tienda' },
+  { id: 'rachas', label: '🔥 Rachas' },
+  { id: 'ajustes', label: '⚙️ Mi Cuenta' },
+];
+
+const ADMIN_TABS = [
+  { id: 'inicio', label: '🏆 Clasificación' },
+  { id: 'todas', label: '📋 Todas las Apuestas' },
+  { id: 'admin-apuestas', label: '⚙️ Gestionar', badge: true },
+  { id: 'admin-eventos', label: '🎯 Eventos' },
+  { id: 'casino', label: '🎡 Casino' },
+  { id: 'admin-banco', label: '🏦 Banca' },
+  { id: 'admin-kakas', label: '😈 Kakas' },
+  { id: 'jackpot', label: '🎰 Jackpot' },
+  { id: 'prestamos', label: '🤝 Préstamos' },
+  { id: 'retos', label: '⚔️ Retos' },
+  { id: 'tienda', label: '🛒 Tienda' },
+  { id: 'hacienda', label: '💼 Hacienda' },
+  { id: 'rachas', label: '🔥 Rachas' },
+  { id: 'admin-credenciales', label: '🔑 Contraseñas' },
+];
+
+function buildNav() {
+  const tabs = STATE.isAdmin ? ADMIN_TABS : PLAYER_TABS;
+  const n = pendientesAdmin();
+  document.getElementById('mainNav').innerHTML = tabs.map(t => {
+    const badge = t.badge && n > 0 ? `<span class="notif-badge">${n}</span>` : '';
+    return `<button class="nav-tab" onclick="showPage('${t.id}')" id="tab-${t.id}">${t.label}${badge}</button>`;
+  }).join('');
+}
+
+function showPage(pageId) {
+  STATE.activePage = pageId;
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const tab = document.getElementById('tab-' + pageId);
+  if (tab) tab.classList.add('active');
+  recalcBancas();
+  renderPage(pageId);
+}
+
+function renderPage(pageId) {
+  const fns = {
+    'inicio': renderInicio, 'apuestas': renderMisApuestas, 'nueva': renderNuevaApuesta,
+    'eventos': renderEventos, 'casino': renderCasino, 'historial': renderHistorial,
+    'jackpot': renderJackpot, 'prestamos': renderPrestamos, 'retos': renderRetos,
+    'tienda': renderTienda, 'rachas': renderRachas, 'ajustes': renderAjustes,
+    'todas': renderTodasApuestas, 'admin-apuestas': renderAdminApuestas,
+    'admin-eventos': renderAdminEventos,
+    'admin-banco': renderAdminBanco, 'admin-kakas': renderAdminKakas,
+    'hacienda': renderHacienda, 'admin-credenciales': renderAdminCredenciales,
+  };
+  document.getElementById('mainContent').innerHTML = fns[pageId] ? fns[pageId]() : '<p>Página no encontrada</p>';
+  if (pageId === 'casino') {
+    // retry a few times until canvas is in DOM
+    let tries = 0;
+    const tryDraw = () => {
+      const c = document.getElementById('roulette-canvas');
+      if (c) { drawRouletteWheel(); }
+      else if (++tries < 10) { setTimeout(tryDraw, 50); }
+    };
+    setTimeout(tryDraw, 30);
+  }
+}
+
+// ============================================================
+// RENDER: INICIO — CLASIFICACIÓN
+// ============================================================
+function renderInicio() {
+  const sorted = [...DATA.jugadores].sort((a,b) => DATA.bancas[b] - DATA.bancas[a]);
+  const medals = ['🥇','🥈','🥉','4°','5°','6°'];
+  const rows = sorted.map((j,i) => {
+    const st = getPlayerStats(j);
+    const vsI = DATA.bancas[j] - 1000;
+    const racha = st.racha.n > 0 ? `<span class="${st.racha.tipo==='WIN'?'racha-pos':'racha-neg'}">${st.racha.tipo==='WIN'?'+':'−'}${st.racha.n}🔥</span>` : '';
+    const inm = getInmunidadActiva(j);
+    const escudo = inm ? `<span title="Inmunidad activa: ${diasRestantes(inm.expira)} días" style="background:rgba(0,255,136,.15);color:var(--green);border:1px solid rgba(0,255,136,.35);border-radius:12px;padding:2px 8px;font-size:12px;font-weight:700;margin-left:6px;letter-spacing:.5px">🛡️ ${diasRestantes(inm.expira)}d</span>` : '';
+    return `<div class="rank-card" style="${inm?'border-color:rgba(0,255,136,.25);':''}" >
+      <div class="rank-num ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${medals[i]}</div>
+      <div style="flex:1">
+        <div class="player-name">${j} ${racha}${escudo}</div>
+        <div style="color:var(--muted);font-size:13px">${st.wins}W · ${st.loses}L · ${st.winRate}% WIN</div>
+      </div>
+      <div>
+        <div class="banca-val">${DATA.bancas[j].toFixed(0)}€</div>
+        <div class="${vsI>=0?'profit-pos':'profit-neg'}" style="font-size:14px;text-align:right">${vsI>=0?'+':''}-${Math.abs(vsI).toFixed(0)}€</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const totalBets = DATA.apuestas.filter(a=>a.resultado==='WIN'||a.resultado==='LOSE').length;
+  const wins = DATA.apuestas.filter(a=>a.resultado==='WIN').length;
+  const jackpot = getJackpot();
+  const pendientes = DATA.apuestas.filter(a=>a.resultado==='PENDIENTE').length;
+  const ultimas = [...DATA.apuestas].filter(a=>a.resultado!=='PENDIENTE'&&a.estado_admin!=='pendiente_admin').slice(-5).reverse();
+  const ultRows = ultimas.map(a=>`<tr>
+    <td style="color:var(--muted);font-size:12px">${a.fecha}</td>
+    <td class="player-name">${a.jugador}</td>
+    <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis">${a.evento}</td>
+    <td>${a.apuesta}€ x${a.cuota}</td>
+    <td><span class="badge-${a.resultado==='WIN'?'win':'lose'}">${a.resultado}</span></td>
+    <td class="${a.ganancia>=0?'profit-pos':'profit-neg'}">${a.ganancia>=0?'+':''}-${a.ganancia.toFixed(0)}€</td>
+  </tr>`).join('');
+
+  return `
+    <div class="section-title">🏆 Liga Kakas Legendary</div>
+    ${rows}
+    <div class="grid-4" style="margin-top:20px">
+      <div class="card"><div class="card-title">Total Apuestas</div><div class="card-value">${totalBets}</div></div>
+      <div class="card"><div class="card-title">Win Rate Global</div><div class="card-value positive">${totalBets>0?(wins/totalBets*100).toFixed(1):0}%</div></div>
+      <div class="card"><div class="card-title">🎰 Jackpot</div><div class="card-value" style="color:var(--gold)">${jackpot.toFixed(0)}€</div></div>
+      <div class="card"><div class="card-title">⏳ Pendientes</div><div class="card-value" style="color:var(--gold2)">${pendientes}</div></div>
+    </div>
+    ${ultimas.length>0?`<div class="card" style="margin-top:4px">
+      <div class="card-title">📋 Últimas Apuestas</div>
+      <table class="data-table"><thead><tr><th>Fecha</th><th>Jugador</th><th>Evento</th><th>Apuesta</th><th>Resultado</th><th>Ganancia</th></tr></thead>
+      <tbody>${ultRows}</tbody></table></div>`:''}`;
+}
+
+// ============================================================
+// RENDER: MIS APUESTAS
+// ============================================================
+function renderMisApuestas() {
+  const j = STATE.currentUser;
+  const st = getPlayerStats(j);
+  const vsI = DATA.bancas[j] - 1000;
+  const bets = DATA.apuestas.filter(a => a.jugador === j).slice().reverse();
+  const rows = bets.map(a => {
+    let res, gan;
+    if (a.estado_admin === 'pendiente_admin') {
+      res = `<span class="badge-approval">ESPERANDO CUOTA</span>`;
+      gan = '—';
+    } else if (a.resultado === 'PENDIENTE') {
+      res = `<span class="badge-pending">PENDIENTE</span>`;
+      gan = '—';
+    } else {
+      res = `<span class="badge-${a.resultado==='WIN'?'win':'lose'}">${a.resultado}</span>`;
+      gan = `<span class="${a.ganancia>=0?'profit-pos':'profit-neg'}">${a.ganancia>=0?'+':''}-${a.ganancia.toFixed(0)}€</span>`;
+    }
+    return `<tr>
+      <td style="color:var(--muted);font-size:12px">${a.fecha}</td>
+      <td>${a.evento}</td>
+      <td>${a.cuota_propuesta?'x'+a.cuota_propuesta+' (prop.)':'x'+a.cuota}</td>
+      <td>${a.apuesta}€</td>
+      <td>${res}</td>
+      <td>${gan}</td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <div class="section-title">📝 Mis Apuestas — ${j}</div>
+    <div class="grid-3">
+      <div class="card"><div class="card-title">Banca Actual</div><div class="card-value" style="color:var(--gold)">${DATA.bancas[j].toFixed(0)}€</div>
+        <div class="${vsI>=0?'profit-pos':'profit-neg'}" style="font-size:14px;margin-top:4px">${vsI>=0?'+':''}-${Math.abs(vsI).toFixed(0)}€ vs inicio</div></div>
+      <div class="card"><div class="card-title">Victorias / Derrotas</div><div class="card-value positive">${st.wins}W</div>
+        <div class="profit-neg" style="font-size:20px">${st.loses}L · ${st.winRate}%</div></div>
+      <div class="card"><div class="card-title">🔥 Racha Actual</div>
+        <div class="card-value ${st.racha.tipo==='WIN'?'positive':'negative'}">${st.racha.n > 0 ? st.racha.n + (st.racha.tipo==='WIN'?'🔥':'❄️') : '—'}</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Historial Completo</div>
+      ${rows.length > 0 ? `<table class="data-table"><thead><tr><th>Fecha</th><th>Evento</th><th>Cuota</th><th>Apuesta</th><th>Resultado</th><th>Ganancia</th></tr></thead>
+      <tbody>${rows}</tbody></table>` : '<div style="text-align:center;color:var(--muted);padding:40px">No hay apuestas aún 🎰</div>'}
+    </div>`;
+}
+
+// ============================================================
+// RENDER: NUEVA APUESTA (jugador propone cuota, admin aprueba)
+// ============================================================
+function renderNuevaApuesta() {
+  const j = STATE.currentUser;
+  const banca = DATA.bancas[j];
+  return `
+    <div class="section-title">➕ Nueva Apuesta</div>
+    <div class="card">
+      <div class="card-title">💰 Banca disponible: <span style="color:var(--gold)">${banca.toFixed(0)}€</span></div>
+      <div class="form-group">
+        <label class="form-label">Descripción del evento</label>
+        <input type="text" class="form-input" id="bet-evento" placeholder="¿Sobre qué apuestas?">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Cantidad (€)</label>
+          <input type="number" class="form-input" id="bet-cantidad" placeholder="100" min="1" max="${banca}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cuota que propones</label>
+          <input type="number" class="form-input" id="bet-cuota-prop" placeholder="1.5" step="0.01" value="1.5">
+        </div>
+      </div>
+      <div style="background:rgba(255,165,0,.08);border:1px solid rgba(255,165,0,.2);border-radius:10px;padding:14px;margin-bottom:16px;font-size:14px;color:var(--gold2)">
+        ℹ️ Tu apuesta irá al admin para aprobación. El admin confirmará o ajustará la cuota antes de activarla.
+      </div>
+      <button class="btn-primary" onclick="submitBetParaAdmin()">ENVIAR AL ADMIN</button>
+    </div>`;
+}
+
+async function submitBetParaAdmin() {
+  const j = STATE.currentUser;
+  const evento = document.getElementById('bet-evento').value.trim();
+  const cantidad = parseFloat(document.getElementById('bet-cantidad').value);
+  const cuotaProp = parseFloat(document.getElementById('bet-cuota-prop').value);
+  const banca = DATA.bancas[j];
+  if (!evento) { showToast('⚠ Describe el evento', 'error'); return; }
+  if (!cantidad || cantidad <= 0) { showToast('⚠ Cantidad inválida', 'error'); return; }
+  if (cantidad > banca) { showToast('⚠ No tienes suficiente banca', 'error'); return; }
+  if (!cuotaProp || cuotaProp < 1) { showToast('⚠ Cuota inválida', 'error'); return; }
+
+  const bet = {
+    fecha: new Date().toISOString().split('T')[0],
+    jugador: j, evento, apuesta: cantidad,
+    cuota: cuotaProp, cuota_propuesta: cuotaProp,
+    resultado: 'PENDIENTE', ganancia: 0, hacienda: 0, jackpot_contrib: 0,
+    estado_admin: 'pendiente_admin'
+  };
+  try {
+    const newId = await saveApuesta(bet);
+    bet.id = newId;
+    DATA.apuestas.push(bet);
+    recalcBancas();
+    showToast('✅ Apuesta enviada al admin', 'success');
+    buildNav(); // refresh badge
+    showPage('apuestas');
+  } catch(e) {}
+}
+
+// ============================================================
+
+// ============================================================
+// RENDER: CASINO — RULETA CANVAS REAL
+// ============================================================
+let casinoState = { tipo: null, numElegido: null, girando: false };
+
+const WHEEL_ORDER = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
+
+function getNumColor(n) {
+  if (n === 0) return 'verde';
+  return ROJOS.has(n) ? 'rojo' : 'negro';
+}
+function spinRuleta() { return Math.floor(Math.random() * 37); }
+
+function renderCasino() {
+  const j = STATE.currentUser || 'Alex';
+  const banca = DATA.bancas[j] || 1000;
+  const tipos = Object.keys(CASINO_TIPOS);
+  const tiposHTML = tipos.map(t => {
+    const info = CASINO_TIPOS[t];
+    return `<button class="casino-tipo-btn ${casinoState.tipo===t?'active':''}" onclick="selCasinoTipo('${t}')">${t} <span style="color:var(--gold);font-family:'Bebas Neue',sans-serif">x${info.cuota}</span></button>`;
+  }).join('');
+
+  return `
+    <div class="section-title">🎡 Casino Kakas</div>
+    <div class="card">
+      <div class="card-title">💰 Banca: <span style="color:var(--gold)">${banca.toFixed(0)}€</span></div>
+      <div style="text-align:center;margin-bottom:20px">
+        <div id="roulette-wrap" style="position:relative;display:inline-block">
+          <div id="roulette-pointer"></div>
+          <canvas id="roulette-canvas" width="300" height="300"></canvas>
+          <div id="center-display"><div id="center-num">?</div></div>
+        </div>
+      </div>
+      <div class="card-title" style="margin-bottom:10px">1️⃣ Tipo de apuesta</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px">${tiposHTML}</div>
+      ${casinoState.tipo === 'Número' ? `<div class="form-group"><label class="form-label">2️⃣ Número exacto (0-36)</label>
+        <input type="number" class="form-input" id="casino-num-exacto" min="0" max="36" placeholder="Ej: 17" value="${casinoState.numElegido !== null ? casinoState.numElegido : ''}"></div>` : ''}
+      ${casinoState.tipo && casinoState.tipo !== 'Número' && casinoState.tipo !== 'Blackjack' && casinoState.tipo !== 'Blackjack 21' ?
+        `<div style="background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.1);border-radius:10px;padding:10px 14px;margin-bottom:16px;color:var(--gold2)">${CASINO_TIPOS[casinoState.tipo].desc} · Cuota <strong>x${CASINO_TIPOS[casinoState.tipo].cuota}</strong></div>` : ''}
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">💰 Importe (€)</label>
+          <input type="number" class="form-input" id="casino-importe" placeholder="100" min="1" max="${banca}">
+        </div>
+        ${casinoState.tipo === 'Blackjack' || casinoState.tipo === 'Blackjack 21' ? `
+        <div class="form-group">
+          <label class="form-label">¿Resultado?</label>
+          <select class="form-select" id="casino-bj-result">
+            <option value="WIN">✅ Gané</option>
+            <option value="LOSE">❌ Perdí</option>
+          </select>
+        </div>` : ''}
+      </div>
+      ${casinoState.tipo ? `<button class="btn-primary" id="btn-girar" onclick="girarRuleta()" ${casinoState.girando?'disabled':''}>
+        ${casinoState.tipo==='Blackjack'||casinoState.tipo==='Blackjack 21'?'🃏 REGISTRAR BLACKJACK':'🎡 GIRAR RULETA'}
+      </button>` : ''}
+      <div id="ruleta-result-area"></div>
+    </div>`;
+}
+
+function selCasinoTipo(tipo) {
+  casinoState.tipo = tipo; casinoState.numElegido = null;
+  showPage('casino');
+}
+
+function drawRouletteWheel(highlightIndex=-1, rotationAngle=0) {
+  const canvas = document.getElementById('roulette-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height, cx=W/2, cy=H/2, r=W/2-4;
+  const slices=WHEEL_ORDER.length, arc=(2*Math.PI)/slices;
+  ctx.clearRect(0,0,W,H);
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,2*Math.PI); ctx.fillStyle='#111800'; ctx.fill();
+  ctx.strokeStyle='#FFD700'; ctx.lineWidth=5; ctx.stroke();
+  WHEEL_ORDER.forEach((num,i) => {
+    const sa=i*arc-Math.PI/2+rotationAngle, ea=sa+arc;
+    const col = num===0?'#1a6b1a':ROJOS.has(num)?'#7a0000':'#0d0d0d';
+    const isHl = i===highlightIndex;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r-5,sa,ea); ctx.closePath();
+    ctx.fillStyle=isHl?(num===0?'#22c55e':ROJOS.has(num)?'#ef4444':'#555'):col; ctx.fill();
+    ctx.strokeStyle='rgba(255,215,0,.15)'; ctx.lineWidth=1; ctx.stroke();
+    ctx.save(); ctx.translate(cx,cy); ctx.rotate(sa+arc/2);
+    ctx.textAlign='right'; ctx.fillStyle='#fff'; ctx.font='bold 9px sans-serif';
+    ctx.fillText(num, r-8, 3); ctx.restore();
+  });
+  // Gold dividers
+  WHEEL_ORDER.forEach((_,i) => {
+    const angle=i*arc-Math.PI/2+rotationAngle;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(angle)*(r-5),cy+Math.sin(angle)*(r-5));
+    ctx.strokeStyle='rgba(255,215,0,.3)'; ctx.lineWidth=1; ctx.stroke();
+  });
+  // Hub
+  ctx.beginPath(); ctx.arc(cx,cy,30,0,2*Math.PI); ctx.fillStyle='#1a1a00'; ctx.fill();
+  ctx.strokeStyle='#FFD700'; ctx.lineWidth=3; ctx.stroke();
+}
+
+async function girarRuleta() {
+  if (casinoState.girando) return;
+  const j = STATE.currentUser;
+  const tipo = casinoState.tipo;
+  const importe = parseFloat(document.getElementById('casino-importe')?.value);
+  if (!tipo) { showToast('⚠ Selecciona tipo de apuesta', 'error'); return; }
+  if (!importe||importe<=0) { showToast('⚠ Introduce un importe', 'error'); return; }
+  if (importe>DATA.bancas[j]) { showToast('⚠ Banca insuficiente', 'error'); return; }
+  const info = CASINO_TIPOS[tipo];
+  const area = document.getElementById('ruleta-result-area');
+
+  if (tipo==='Blackjack'||tipo==='Blackjack 21') {
+    const bjRes = document.getElementById('casino-bj-result').value;
+    const fin = calcFinanciero(importe, info.cuota, bjRes);
+    await registrarApuestaCasino(j, tipo+(bjRes==='WIN'?' — GANASTE':' — PERDISTE'), importe, info.cuota, bjRes, fin);
+    area.innerHTML=`<div style="margin-top:16px;padding:24px;text-align:center;background:rgba(${bjRes==='WIN'?'0,255,136':'255,51,85'},.1);border-radius:12px">
+      <div style="font-size:52px">🃏</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:${bjRes==='WIN'?'var(--green)':'var(--red)'}">${bjRes}</div>
+      <div style="font-size:24px;margin-top:8px;color:${fin.ganancia>=0?'var(--green)':'var(--red)'}">
+        ${fin.ganancia>=0?'+':''}${fin.ganancia.toFixed(0)}€</div></div>`;
+    return;
+  }
+
+  if (tipo==='Número') {
+    const n=parseInt(document.getElementById('casino-num-exacto')?.value);
+    if (isNaN(n)||n<0||n>36) { showToast('⚠ Número inválido (0-36)', 'error'); return; }
+    casinoState.numElegido=n;
+  }
+
+  casinoState.girando=true;
+  const btnG=document.getElementById('btn-girar'); if(btnG) btnG.disabled=true;
+  area.innerHTML='';
+
+  const numSorteo=spinRuleta();
+  const targetIdx=WHEEL_ORDER.indexOf(numSorteo);
+  const slices=WHEEL_ORDER.length;
+  const totalFrames=150, totalRots=6+Math.random()*4;
+  const finalAngle=(totalRots*2*Math.PI)+((targetIdx/slices)*2*Math.PI);
+  let frame=0;
+  const easeOut=t=>1-Math.pow(1-t,4);
+  const cn=document.getElementById('center-num');
+
+  const anim=()=>{
+    frame++;
+    const prog=frame/totalFrames, ease=easeOut(prog);
+    const curAngle=finalAngle*ease;
+    const curSlice=Math.floor(((curAngle/(2*Math.PI))%1)*slices);
+    if(cn) cn.textContent=WHEEL_ORDER[curSlice%slices];
+    drawRouletteWheel(-1, curAngle);
+    if(frame<totalFrames){ requestAnimationFrame(anim); }
+    else {
+      drawRouletteWheel(targetIdx, finalAngle%(2*Math.PI));
+      if(cn) cn.textContent=numSorteo;
+      const color=getNumColor(numSorteo);
+      let gana=tipo==='Número'?numSorteo===casinoState.numElegido:info.check(numSorteo,casinoState.numElegido);
+      const resultado=gana?'WIN':'LOSE';
+      const fin=calcFinanciero(importe,info.cuota,resultado);
+      const ev=`Ruleta ${tipo}${tipo==='Número'?' #'+casinoState.numElegido:''} → ${numSorteo} (${color})`;
+      registrarApuestaCasino(j,ev,importe,info.cuota,resultado,fin).then(()=>{
+        const colorVal={rojo:'#ef4444',negro:'#aaa',verde:'#22c55e'}[color];
+        const a2=document.getElementById('ruleta-result-area');
+        if(a2) a2.innerHTML=`<div style="margin-top:16px;padding:24px;text-align:center;border-radius:14px;background:rgba(${gana?'0,255,136':'255,51,85'},.08);border:2px solid rgba(${gana?'0,255,136':'255,51,85'},.35)">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:88px;line-height:1;color:${colorVal}">${numSorteo}</div>
+          <div style="font-size:13px;color:var(--muted);letter-spacing:3px;margin-bottom:8px">${color.toUpperCase()}</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:44px;color:${gana?'var(--green)':'var(--red)'}">${gana?'¡ACIERTO!':'FALLASTE'}</div>
+          <div style="font-size:28px;font-weight:700;margin-top:8px;color:${fin.ganancia>=0?'var(--green)':'var(--red)'}">
+            ${fin.ganancia>=0?'+':''}${fin.ganancia.toFixed(0)}€</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:6px">Hacienda: ${fin.hacienda.toFixed(0)}€ · Jackpot: ${fin.jackpot_contrib.toFixed(0)}€</div>
+          <button class="btn-primary" style="margin-top:16px" onclick="casinoState.girando=false;showPage('casino');setTimeout(drawRouletteWheel,60)">🎡 Volver a girar</button>
+        </div>`;
+      });
+      casinoState.girando=false;
+    }
+  };
+  requestAnimationFrame(anim);
+}
+
+async function registrarApuestaCasino(jugador, evento, apuesta, cuota, resultado, fin) {
+  const bet={ fecha:new Date().toISOString().split('T')[0], jugador, evento, apuesta, cuota, resultado,
+    ganancia:fin.ganancia, hacienda:fin.hacienda, jackpot_contrib:fin.jackpot_contrib,
+    cuota_propuesta:null, estado_admin:'aprobada' };
+  try {
+    const newId=await saveApuesta(bet); bet.id=newId;
+    DATA.apuestas.push(bet);
+    DATA.jackpotExtra+=fin.jackpot_contrib;
+    await saveConfig('jackpotExtra', DATA.jackpotExtra);
+    recalcBancas();
+  } catch(e) {}
+}
+
+// ============================================================
+// RENDER: HISTORIAL
+// ============================================================
+function renderHistorial() {
+  const j = STATE.currentUser;
+  const bets = DATA.apuestas.filter(a => a.jugador === j && (a.resultado==='WIN'||a.resultado==='LOSE')).slice().reverse();
+  const totalApostado = bets.reduce((s,a)=>s+a.apuesta,0);
+  const totalHacienda = bets.reduce((s,a)=>s+(a.hacienda||0),0);
+  const totalJackpot = bets.reduce((s,a)=>s+(a.jackpot_contrib||0),0);
+  const totalGanado = bets.reduce((s,a)=>s+a.ganancia,0);
+  const rows = bets.map(a=>`<tr>
+    <td style="color:var(--muted);font-size:12px">${a.fecha}</td>
+    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis">${a.evento}</td>
+    <td>${a.apuesta}€</td><td>x${a.cuota}</td>
+    <td><span class="badge-${a.resultado==='WIN'?'win':'lose'}">${a.resultado}</span></td>
+    <td class="profit-neg">${(a.hacienda||0).toFixed(0)}€</td>
+    <td class="profit-neg">${(a.jackpot_contrib||0).toFixed(0)}€</td>
+    <td class="${a.ganancia>=0?'profit-pos':'profit-neg'}">${a.ganancia>=0?'+':''}-${a.ganancia.toFixed(0)}€</td>
+  </tr>`).join('');
+
+  return `
+    <div class="section-title">📊 Historial — ${j}</div>
+    <div class="grid-4">
+      <div class="card"><div class="card-title">Total Apostado</div><div class="card-value">${totalApostado.toFixed(0)}€</div></div>
+      <div class="card"><div class="card-title">💸 Hacienda</div><div class="card-value profit-neg">${totalHacienda.toFixed(0)}€</div></div>
+      <div class="card"><div class="card-title">🎰 Jackpot</div><div class="card-value" style="color:var(--gold)">${totalJackpot.toFixed(0)}€</div></div>
+      <div class="card"><div class="card-title">💵 Neto Ganado</div><div class="card-value ${totalGanado>=0?'positive':'negative'}">${totalGanado>=0?'+':''}-${Math.abs(totalGanado).toFixed(0)}€</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Detalle — Hacienda 6% WIN / 20% LOSE · Jackpot 10% WIN / 80% LOSE</div>
+      <table class="data-table"><thead><tr><th>Fecha</th><th>Evento</th><th>Apuesta</th><th>Cuota</th><th>Res.</th><th>Hacienda</th><th>Jackpot</th><th>Ganancia</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+    </div>`;
+}
+
+// ============================================================
+// RENDER: JACKPOT
+// ============================================================
+function renderJackpot() {
+  const jackpot = getJackpot();
+  const contribs = DATA.jugadores.map(j => ({
+    j, contrib: DATA.apuestas.filter(a=>a.jugador===j).reduce((s,a)=>s+(a.jackpot_contrib||0),0)
+  })).sort((a,b)=>b.contrib-a.contrib);
+  const rows = contribs.map(c=>`<tr>
+    <td class="player-name">${c.j}</td>
+    <td style="color:var(--gold)">${c.contrib.toFixed(0)}€</td>
+    <td style="color:var(--muted)">${jackpot>0?(c.contrib/jackpot*100).toFixed(1):0}%</td>
+  </tr>`).join('');
+
+  const adminSection = STATE.isAdmin ? `
+    <div class="admin-panel" style="margin-top:20px">
+      <div class="admin-title">👑 ADMIN — Ejecutar Sorteo Jackpot</div>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:16px">El sorteo es aleatorio entre los 6 jugadores. El ganador se lleva todo el bote y se descuenta de su banca como ganancia.</p>
+      <button class="btn-primary" onclick="ejecutarSorteoJackpot()" style="background:linear-gradient(135deg,#9944ff,#7733cc)">🎰 EJECUTAR SORTEO OFICIAL</button>
+      <div id="sorteo-result" style="margin-top:16px"></div>
+    </div>` : '';
+
+  return `
+    <div class="section-title">🎰 Jackpot</div>
+    <div class="jackpot-display">
+      <div class="jackpot-label">🏆 Bote Acumulado</div>
+      <div class="jackpot-amount">${jackpot.toFixed(0)}€</div>
+      <div style="color:var(--muted);font-size:13px;margin-top:8px;letter-spacing:2px">WIN: 10% ganancia · LOSE: 80% apuesta</div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 Aportación por Jugador</div>
+      <table class="data-table"><thead><tr><th>Jugador</th><th>Aportado</th><th>% del Bote</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+    </div>
+    ${adminSection}`;
+}
+
+async function ejecutarSorteoJackpot() {
+  const jackpot = getJackpot();
+  if (jackpot <= 0) { showToast('⚠ El jackpot está vacío', 'error'); return; }
+  if (!confirm(`¿Ejecutar sorteo oficial del jackpot? (${jackpot.toFixed(0)}€)`)) return;
+
+  const jugadores = DATA.jugadores;
+  const ganador = jugadores[Math.floor(Math.random() * jugadores.length)];
+
+  const area = document.getElementById('sorteo-result');
+  area.innerHTML = `<div style="text-align:center;padding:20px"><div style="font-size:50px;animation:spin .5s linear infinite">🎰</div></div>`;
+  await new Promise(r=>setTimeout(r,3000));
+
+  // Registrar el jackpot como apuesta WIN
+  const bet = {
+    fecha: new Date().toISOString().split('T')[0],
+    jugador: ganador, evento: '🏆 JACKPOT SORTEADO — Premio oficial',
+    apuesta: jackpot, cuota: 1, resultado: 'WIN',
+    ganancia: jackpot, hacienda: 0, jackpot_contrib: 0,
+    cuota_propuesta: null, estado_admin: 'aprobada'
+  };
+  try {
+    const newId = await saveApuesta(bet);
+    bet.id = newId;
+    DATA.apuestas.push(bet);
+    DATA.jackpotExtra = 0;
+    await saveConfig('jackpotExtra', 0);
+    recalcBancas();
+    area.innerHTML = `<div style="text-align:center;padding:24px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);border-radius:12px">
+      <div style="font-size:50px">🏆</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--gold)">${ganador}</div>
+      <div style="font-size:24px;color:var(--green);margin-top:8px">+${jackpot.toFixed(0)}€</div>
+      <div style="color:var(--muted);font-size:14px;margin-top:8px">¡Se lleva todo el bote!</div>
+    </div>`;
+    showToast(`🏆 ${ganador} gana el jackpot: ${jackpot.toFixed(0)}€`, 'success');
+  } catch(e) {}
+}
+
+// ============================================================
+// RENDER: PRÉSTAMOS
+// ============================================================
+function renderPrestamos() {
+  const j = STATE.isAdmin ? null : STATE.currentUser;
+  const misPrest = j ? DATA.prestamos.filter(p=>p.prestamista===j||p.prestatario===j) : DATA.prestamos;
+
+  const rows = misPrest.map(p=>`<tr>
+    <td>${p.prestamista}</td><td>${p.prestatario}</td>
+    <td>${p.cantidad}€</td><td>${p.interes_pct}%</td>
+    <td>${p.total_devolver}€</td>
+    <td>${p.fecha||'—'}</td>
+    <td><span class="badge-${p.estado==='PAGADO'?'win':'pending'}">${p.estado}</span></td>
+    ${STATE.isAdmin?`<td><button class="btn-small" onclick="pagarPrestamo(${p.id})">✅ Pagar</button></td>`:''}
+  </tr>`).join('');
+
+  const formAdmin = STATE.isAdmin ? `
+    <div class="admin-panel">
+      <div class="admin-title">➕ Nuevo Préstamo</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Prestamista</label>
+          <select class="form-select" id="prest-from"><option value="BANCA">🏦 Banca Liga</option>${DATA.jugadores.map(j=>`<option>${j}</option>`).join('')}</select></div>
+        <div class="form-group"><label class="form-label">Prestatario</label>
+          <select class="form-select" id="prest-to">${DATA.jugadores.map(j=>`<option>${j}</option>`).join('')}</select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Cantidad (€)</label>
+          <input type="number" class="form-input" id="prest-cantidad" placeholder="500"></div>
+        <div class="form-group"><label class="form-label">Interés (%)</label>
+          <input type="number" class="form-input" id="prest-interes" placeholder="5" value="5" step="0.5"></div>
+      </div>
+      <button class="btn-primary" onclick="crearPrestamo()">REGISTRAR PRÉSTAMO</button>
+    </div>` : '';
+
+  return `
+    <div class="section-title">🤝 Préstamos</div>
+    ${formAdmin}
+    <div class="card">
+      <div class="card-title">${j?'Mis Préstamos':'Todos los Préstamos'}</div>
+      ${rows.length>0?`<table class="data-table"><thead><tr><th>Prestamista</th><th>Prestatario</th><th>Cantidad</th><th>%</th><th>Total</th><th>Fecha</th><th>Estado</th>${STATE.isAdmin?'<th></th>':''}</tr></thead><tbody>${rows}</tbody></table>`:'<div style="text-align:center;color:var(--muted);padding:30px">No hay préstamos activos</div>'}
+    </div>`;
+}
+
+async function crearPrestamo() {
+  const from = document.getElementById('prest-from').value;
+  const to = document.getElementById('prest-to').value;
+  const cantidad = parseFloat(document.getElementById('prest-cantidad').value);
+  const interes = parseFloat(document.getElementById('prest-interes').value);
+  if (!cantidad || cantidad<=0) { showToast('⚠ Cantidad inválida', 'error'); return; }
+  const total = +(cantidad*(1+interes/100)).toFixed(2);
+  const p = { prestamista: from, prestatario: to, cantidad, interes_pct: interes, total_devolver: total, fecha: new Date().toISOString().split('T')[0], estado: 'PENDIENTE' };
+  try {
+    const newId = await savePrestamo(p);
+    p.id = newId; DATA.prestamos.push(p);
+    showToast('✅ Préstamo registrado', 'success');
+    showPage('prestamos');
+  } catch(e) {}
+}
+
+async function pagarPrestamo(id) {
+  if (!confirm('¿Marcar préstamo como pagado?')) return;
+  try {
+    await updatePrestamo(id, { estado: 'PAGADO' });
+    DATA.prestamos.find(p=>p.id===id).estado = 'PAGADO';
+    showToast('✅ Préstamo pagado', 'success');
+    showPage('prestamos');
+  } catch(e) {}
+}
+
+// ============================================================
+// RENDER: RETOS
+// ============================================================
+function renderRetos() {
+  const j = STATE.currentUser;
+  const rows = DATA.retos.map(r=>`<tr>
+    <td>${r.retador}</td><td>${r.retado}</td>
+    <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis">${r.descripcion}</td>
+    <td>${r.penalizacion}€</td>
+    <td><span class="badge-${r.estado==='COMPLETADO'?'win':r.estado==='PERDIDO'?'lose':'pending'}">${r.estado}</span></td>
+    ${STATE.isAdmin?`<td>
+      <button class="btn-small" onclick="resolverReto(${r.id},'${r.retador}',${r.penalizacion})">🏆 Gana retador</button>
+      <button class="btn-danger" style="margin-left:4px" onclick="resolverReto(${r.id},'${r.retado}',${r.penalizacion})">💀 Gana retado</button>
+    </td>`:''}
+  </tr>`).join('');
+
+  return `
+    <div class="section-title">⚔️ Retos</div>
+    <div class="admin-panel">
+      <div class="admin-title">➕ Nuevo Reto</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Retador</label>
+          <select class="form-select" id="reto-de">${DATA.jugadores.map(jj=>`<option ${jj===j?'selected':''}>${jj}</option>`).join('')}</select></div>
+        <div class="form-group"><label class="form-label">Retado</label>
+          <select class="form-select" id="reto-a">${DATA.jugadores.map(jj=>`<option>${jj}</option>`).join('')}</select></div>
+      </div>
+      <div class="form-group"><label class="form-label">Descripción del reto</label>
+        <input type="text" class="form-input" id="reto-desc" placeholder="Si X pasa, Y hace Z..."></div>
+      <div class="form-group"><label class="form-label">Penalización (€)</label>
+        <input type="number" class="form-input" id="reto-pen" placeholder="500"></div>
+      <button class="btn-primary" onclick="crearReto()">PROPONER RETO</button>
+    </div>
+    <div class="card">
+      <div class="card-title">Registro de Retos</div>
+      ${rows.length>0?`<table class="data-table"><thead><tr><th>Retador</th><th>Retado</th><th>Descripción</th><th>Penalización</th><th>Estado</th>${STATE.isAdmin?'<th>Resolver</th>':''}</tr></thead><tbody>${rows}</tbody></table>`:'<div style="text-align:center;color:var(--muted);padding:30px">No hay retos activos</div>'}
+    </div>`;
+}
+
+async function crearReto() {
+  const de = document.getElementById('reto-de').value;
+  const a = document.getElementById('reto-a').value;
+  const desc = document.getElementById('reto-desc').value.trim();
+  const pen = parseFloat(document.getElementById('reto-pen').value);
+  if (!desc) { showToast('⚠ Describe el reto', 'error'); return; }
+  if (!pen||pen<=0) { showToast('⚠ Penalización inválida', 'error'); return; }
+  const r = { retador:de, retado:a, descripcion:desc, penalizacion:pen, estado:'ACTIVO', fecha:new Date().toISOString().split('T')[0] };
+  try {
+    const newId = await saveReto(r);
+    r.id = newId; DATA.retos.push(r);
+    showToast('✅ Reto creado', 'success');
+    showPage('retos');
+  } catch(e) {}
+}
+
+async function resolverReto(id, perdedor, penalizacion) {
+  if (!confirm(`¿${perdedor} pierde el reto y paga ${penalizacion}€?`)) return;
+  try {
+    await updateReto(id, { estado: 'COMPLETADO' });
+    DATA.retos.find(r=>r.id===id).estado = 'COMPLETADO';
+    const kakaObj = { fecha: new Date().toISOString().split('T')[0], jugador:perdedor, kaka:'⚔️ Reto perdido', multa:penalizacion, notas:'Penalización de reto' };
+    const newKakaId = await saveKaka(kakaObj);
+    kakaObj.id = newKakaId; DATA.kakas.push(kakaObj);
+    recalcBancas();
+    showToast(`✅ Reto resuelto. ${perdedor} paga ${penalizacion}€`, 'success');
+    showPage('retos');
+  } catch(e) {}
+}
+
+// ============================================================
+// RENDER: TIENDA
+// ============================================================
+const CATALOGO_TIENDA = [
+  { codigo:'T01', nombre:'🛡️ Semana Sin Kakas', precio:20000, desc:'Inmunidad total durante 7 días contra cualquier kaka. Se activa cuando tú quieras después de comprarla.' },
+];
+
+// ── Immunity helpers ──────────────────────────────────────────
+function getInventario(jugador) {
+  return DB._get('liga_inv_' + jugador) || { inmunidades: [] };
+}
+function saveInventario(jugador, inv) {
+  DB._set('liga_inv_' + jugador, inv);
+}
+function getInmunidadActiva(jugador) {
+  const inv = getInventario(jugador);
+  const now = Date.now();
+  return (inv.inmunidades || []).find(i => i.activa && i.expira > now) || null;
+}
+function diasRestantes(expira) {
+  return Math.max(0, Math.ceil((expira - Date.now()) / (1000 * 60 * 60 * 24)));
+}
+
+function renderTienda() {
+  const j = STATE.currentUser;
+  const banca = DATA.bancas[j] || 0;
+  const inv = getInventario(j);
+  const now = Date.now();
+  const inmunidadActiva = getInmunidadActiva(j);
+  const todasInmunidades = inv.inmunidades || [];
+
+  // Inmunidades activas de toda la liga (visible para todos)
+  const inmunidadesGlobales = DATA.jugadores.map(jj => {
+    const inm = getInmunidadActiva(jj);
+    return inm ? { jugador: jj, dias: diasRestantes(inm.expira) } : null;
+  }).filter(Boolean);
+
+  const escudosHTML = inmunidadesGlobales.length > 0 ? `
+    <div class="card" style="margin-bottom:16px;border-color:rgba(0,255,136,.2)">
+      <div class="card-title">🛡️ Inmunidades Activas en la Liga</div>
+      ${inmunidadesGlobales.map(x => `
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+          <span style="font-size:22px">🛡️</span>
+          <span style="flex:1;font-weight:700">${x.jugador}</span>
+          <span style="color:var(--green);font-weight:600;font-size:13px">${x.dias} día${x.dias!==1?'s':''} restante${x.dias!==1?'s':''}</span>
+        </div>`).join('')}
+    </div>` : '';
+
+  // Inventario personal
+  const inventarioHTML = todasInmunidades.length > 0 ? `
+    <div class="card" style="margin-bottom:16px;border-color:rgba(0,255,136,.15)">
+      <div class="card-title">🎒 Mi Inventario</div>
+      ${todasInmunidades.map(i => {
+        const expirada = i.activa && i.expira <= now;
+        const activa = i.activa && i.expira > now;
+        const dias = activa ? diasRestantes(i.expira) : 0;
+        const fechaExp = i.expira ? new Date(i.expira).toLocaleDateString('es-ES') : '—';
+        if (activa) {
+          return `<div style="background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.3);border-radius:10px;padding:14px;display:flex;align-items:center;gap:14px;margin-bottom:8px">
+            <span style="font-size:32px">🛡️</span>
+            <div style="flex:1">
+              <div style="font-weight:700;color:var(--green)">INMUNIDAD ACTIVA</div>
+              <div style="color:var(--muted);font-size:13px">Expira el ${fechaExp} · <strong style="color:var(--green)">${dias} día${dias!==1?'s':''} restante${dias!==1?'s':''}</strong></div>
+            </div>
+            <div style="background:rgba(0,255,136,.2);color:var(--green);padding:5px 12px;border-radius:20px;font-weight:700;font-size:12px;letter-spacing:1px">ACTIVO</div>
+          </div>`;
+        } else if (expirada) {
+          return `<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:12px;display:flex;align-items:center;gap:12px;margin-bottom:6px;opacity:.5">
+            <span style="font-size:24px">🛡️</span>
+            <div style="flex:1"><div style="font-weight:600">Inmunidad expirada</div><div style="color:var(--muted);font-size:12px">Expiró el ${fechaExp}</div></div>
+            <div style="color:var(--muted);font-size:12px">EXPIRADA</div>
+          </div>`;
+        } else {
+          return `<div style="background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.2);border-radius:10px;padding:12px;display:flex;align-items:center;gap:12px;margin-bottom:6px">
+            <span style="font-size:28px">🛡️</span>
+            <div style="flex:1"><div style="font-weight:700;color:var(--gold)">Inmunidad Sin Activar</div>
+              <div style="color:var(--muted);font-size:12px">Comprada el ${new Date(i.comprada).toLocaleDateString('es-ES')} · Actívala cuando quieras</div>
+            </div>
+            <button class="btn-small" onclick="activarInmunidad(${i.id})">▶ ACTIVAR</button>
+          </div>`;
+        }
+      }).join('')}
+    </div>` : '';
+
+  const itemsHTML = CATALOGO_TIENDA.map(item => {
+    const puedePagar = !STATE.isAdmin && banca >= item.precio;
+    const yaActiva = item.codigo === 'T01' && inmunidadActiva;
+    return `
+    <div class="shop-item">
+      <div style="font-size:36px;margin-bottom:8px">${item.nombre.split(' ')[0]}</div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:6px">${item.nombre}</div>
+      <div style="color:var(--muted);font-size:13px;margin-bottom:12px">${item.desc}</div>
+      <div class="shop-price">${item.precio.toLocaleString()}€</div>
+      ${yaActiva
+        ? `<div style="color:var(--green);font-size:13px;margin-top:10px">🛡️ Ya tienes inmunidad activa</div>`
+        : STATE.isAdmin
+          ? `<div style="color:var(--muted);font-size:12px;margin-top:8px">Solo para jugadores</div>`
+          : puedePagar
+            ? `<button class="btn-primary" style="margin-top:12px;width:100%;font-size:14px" onclick="comprarItem('${item.codigo}')">COMPRAR</button>`
+            : `<div style="color:var(--muted);font-size:13px;margin-top:8px">💸 Banca insuficiente</div>`}
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="section-title">🛒 Tienda Kakas</div>
+    ${escudosHTML}
+    ${inventarioHTML}
+    <div style="background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.1);border-radius:10px;padding:14px;margin-bottom:20px">
+      💰 Tu banca: <strong style="color:var(--gold)">${banca.toFixed(0)}€</strong>
+    </div>
+    <div class="grid-3">${itemsHTML}</div>`;
+}
+
+async function activarInmunidad(inmId) {
+  const j = STATE.currentUser;
+  if (getInmunidadActiva(j)) { showToast('⚠ Ya tienes una inmunidad activa', 'error'); return; }
+  const inv = getInventario(j);
+  const inm = inv.inmunidades.find(i => i.id === inmId);
+  if (!inm) return;
+  inm.activa = true;
+  inm.expira = Date.now() + 7 * 24 * 60 * 60 * 1000;
+  saveInventario(j, inv);
+  showToast('🛡️ ¡Inmunidad activada! 7 días sin kakas desde ahora.', 'success');
+  showPage('tienda');
+}
+
+async function comprarItem(codigo) {
+  const item = CATALOGO_TIENDA.find(i => i.codigo === codigo);
+  const j = STATE.currentUser;
+  if (STATE.isAdmin) { showToast('⚠ El admin no puede comprar', 'error'); return; }
+  if (!item || DATA.bancas[j] < item.precio) { showToast('⚠ Banca insuficiente', 'error'); return; }
+  if (codigo === 'T01' && getInmunidadActiva(j)) { showToast('⚠ Ya tienes inmunidad activa', 'error'); return; }
+  if (!confirm(`¿Comprar "${item.nombre}" por ${item.precio.toLocaleString()}€?`)) return;
+
+  const bet = {
+    fecha: new Date().toISOString().split('T')[0], jugador: j,
+    evento: `[TIENDA] ${item.nombre}`, apuesta: item.precio, cuota: 1,
+    resultado: 'LOSE', ganancia: -item.precio, hacienda: 0, jackpot_contrib: 0,
+    cuota_propuesta: null, estado_admin: 'aprobada'
+  };
+  try {
+    const newId = await saveApuesta(bet);
+    bet.id = newId; DATA.apuestas.push(bet);
+    recalcBancas();
+    if (codigo === 'T01') {
+      const inv = getInventario(j);
+      inv.inmunidades = inv.inmunidades || [];
+      inv.inmunidades.push({ id: Date.now(), activa: false, comprada: Date.now(), expira: 0 });
+      saveInventario(j, inv);
+      showToast('🛡️ Inmunidad comprada — actívala en tu inventario cuando quieras.', 'success');
+    } else {
+      showToast(`✅ ¡${item.nombre} comprado!`, 'success');
+    }
+    showPage('tienda');
+  } catch(e) { showToast('❌ Error al comprar', 'error'); }
+}
+
+// ============================================================
+// RENDER: RACHAS & ESTADÍSTICAS
+// ============================================================
+function renderRachas() {
+  const rows = DATA.jugadores.map(j=>{
+    const st = getPlayerStats(j);
+    const bets = DATA.apuestas.filter(a=>a.jugador===j&&(a.resultado==='WIN'||a.resultado==='LOSE'));
+    const ganancias = bets.filter(a=>a.resultado==='WIN').reduce((s,a)=>s+a.ganancia,0);
+    const perdidas = bets.filter(a=>a.resultado==='LOSE').reduce((s,a)=>s+Math.abs(a.ganancia),0);
+    const maxGan = bets.filter(a=>a.resultado==='WIN').reduce((m,a)=>Math.max(m,a.ganancia),0);
+    const maxPerd = bets.filter(a=>a.resultado==='LOSE').reduce((m,a)=>Math.max(m,Math.abs(a.ganancia)),0);
+    const roi = ((DATA.bancas[j]-1000)/1000*100).toFixed(1);
+    const racha = st.racha;
+    const rachaStr = racha.n>0?`<span class="${racha.tipo==='WIN'?'racha-pos':'racha-neg'}">${racha.n}${racha.tipo==='WIN'?'🔥':'❄️'}</span>`:'—';
+    return `<tr>
+      <td class="player-name">${j}</td>
+      <td style="color:var(--gold)">${DATA.bancas[j].toFixed(0)}€</td>
+      <td>${rachaStr}</td>
+      <td>${st.wins}</td><td>${st.loses}</td>
+      <td>${st.winRate}%</td>
+      <td class="${roi>=0?'profit-pos':'profit-neg'}">${roi}%</td>
+      <td class="profit-pos">+${maxGan.toFixed(0)}€</td>
+      <td class="profit-neg">-${maxPerd.toFixed(0)}€</td>
+    </tr>`;
+  }).join('');
+
+  const totalBets = DATA.apuestas.filter(a=>a.resultado==='WIN'||a.resultado==='LOSE').length;
+  const wins = DATA.apuestas.filter(a=>a.resultado==='WIN').length;
+  const maxGanBet = DATA.apuestas.filter(a=>a.resultado==='WIN').reduce((m,a)=>a.ganancia>m.ganancia?a:m,{ganancia:0,evento:'—',jugador:'—'});
+  const maxPerdBet = DATA.apuestas.filter(a=>a.resultado==='LOSE').reduce((m,a)=>Math.abs(a.ganancia)>Math.abs(m.ganancia)?a:m,{ganancia:0,evento:'—',jugador:'—'});
+
+  return `
+    <div class="section-title">🔥 Rachas & Récords</div>
+    <div class="card">
+      <div class="card-title">⚡ Estadísticas por Jugador</div>
+      <table class="data-table"><thead><tr><th>Jugador</th><th>Banca</th><th>Racha</th><th>W</th><th>L</th><th>Win%</th><th>ROI</th><th>Max Win</th><th>Max Lose</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+    </div>
+    <div class="grid-3">
+      <div class="card"><div class="card-title">🏆 Récord Mayor Ganancia</div>
+        <div style="font-size:18px;font-weight:700;color:var(--green)">+${maxGanBet.ganancia.toFixed(0)}€</div>
+        <div style="color:var(--muted);font-size:13px;margin-top:4px">${maxGanBet.jugador} — ${maxGanBet.evento}</div></div>
+      <div class="card"><div class="card-title">💀 Récord Mayor Pérdida</div>
+        <div style="font-size:18px;font-weight:700;color:var(--red)">-${Math.abs(maxPerdBet.ganancia).toFixed(0)}€</div>
+        <div style="color:var(--muted);font-size:13px;margin-top:4px">${maxPerdBet.jugador} — ${maxPerdBet.evento}</div></div>
+      <div class="card"><div class="card-title">📊 Win Rate Global</div>
+        <div style="font-size:28px;font-weight:700;color:var(--green)">${totalBets>0?(wins/totalBets*100).toFixed(1):0}%</div>
+        <div style="color:var(--muted);font-size:13px;margin-top:4px">${wins}W / ${totalBets-wins}L</div></div>
+    </div>`;
+}
+
+// ============================================================
+// RENDER: MI CUENTA (cambio contraseña)
+// ============================================================
+function renderAjustes() {
+  const j = STATE.currentUser;
+  return `
+    <div class="section-title">⚙️ Mi Cuenta — ${j}</div>
+    <div class="card">
+      <div class="card-title">🔑 Cambiar Contraseña</div>
+      <div class="form-group">
+        <label class="form-label">Contraseña Actual</label>
+        <input type="password" class="form-input" id="pw-actual" placeholder="Tu contraseña actual">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nueva Contraseña</label>
+        <input type="password" class="form-input" id="pw-nueva" placeholder="Nueva contraseña (mín. 6 caracteres)">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirmar Nueva Contraseña</label>
+        <input type="password" class="form-input" id="pw-confirmar" placeholder="Repite la nueva contraseña">
+      </div>
+      <button class="btn-primary" onclick="cambiarPassword()">CAMBIAR CONTRASEÑA</button>
+    </div>`;
+}
+
+async function cambiarPassword() {
+  const j = STATE.currentUser;
+  const actual = document.getElementById('pw-actual').value;
+  const nueva = document.getElementById('pw-nueva').value;
+  const confirmar = document.getElementById('pw-confirmar').value;
+  if (actual !== PASSWORDS[j]) { showToast('❌ Contraseña actual incorrecta', 'error'); return; }
+  if (nueva.length < 6) { showToast('⚠ La nueva contraseña debe tener al menos 6 caracteres', 'error'); return; }
+  if (nueva !== confirmar) { showToast('⚠ Las contraseñas no coinciden', 'error'); return; }
+  PASSWORDS[j] = nueva;
+  await saveConfig('passwords', JSON.stringify(PASSWORDS));
+  showToast('✅ Contraseña cambiada correctamente', 'success');
+  document.getElementById('pw-actual').value = '';
+  document.getElementById('pw-nueva').value = '';
+  document.getElementById('pw-confirmar').value = '';
+}
+
+// ============================================================
+// RENDER: HACIENDA (admin)
+// ============================================================
+function renderHacienda() {
+  const totalHacienda = getHacienda();
+  const totalJackpot = getJackpot();
+  const rows = DATA.jugadores.map(j=>{
+    const bets = DATA.apuestas.filter(a=>a.jugador===j);
+    const h = bets.reduce((s,a)=>s+(a.hacienda||0),0);
+    const jk = bets.reduce((s,a)=>s+(a.jackpot_contrib||0),0);
+    const wins = bets.filter(a=>a.resultado==='WIN').length;
+    const loses = bets.filter(a=>a.resultado==='LOSE').length;
+    const total = bets.filter(a=>a.resultado==='WIN'||a.resultado==='LOSE').reduce((s,a)=>s+a.apuesta,0);
+    return `<tr>
+      <td class="player-name">${j}</td>
+      <td>${DATA.bancas[j].toFixed(0)}€</td>
+      <td>${total.toFixed(0)}€</td>
+      <td class="profit-neg">${h.toFixed(0)}€</td>
+      <td style="color:var(--gold)">${jk.toFixed(0)}€</td>
+      <td>${wins}</td><td>${loses}</td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <div class="section-title">💼 Hacienda de la Liga</div>
+    <div class="grid-3">
+      <div class="card"><div class="card-title">💸 Total Hacienda</div><div class="card-value profit-neg">${totalHacienda.toFixed(0)}€</div>
+        <div style="color:var(--muted);font-size:12px;margin-top:8px">WIN: 6% ganancia bruta · LOSE: 20% apuesta</div></div>
+      <div class="card"><div class="card-title">🎰 Total Jackpot</div><div class="card-value" style="color:var(--gold)">${totalJackpot.toFixed(0)}€</div>
+        <div style="color:var(--muted);font-size:12px;margin-top:8px">WIN: 10% ganancia bruta · LOSE: 80% apuesta</div></div>
+      <div class="card"><div class="card-title">🏦 Saldo Hacienda Liga</div><div class="card-value" style="color:#4488ff">100.000€</div>
+        <div style="color:var(--muted);font-size:12px;margin-top:8px">Reserva oficial de la liga</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 Contabilidad por Jugador</div>
+      <table class="data-table"><thead><tr><th>Jugador</th><th>Banca</th><th>Total Apostado</th><th>Hacienda</th><th>Jackpot</th><th>Wins</th><th>Loses</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+    </div>`;
+}
+
+// ============================================================
+// RENDER: TODAS LAS APUESTAS (admin)
+// ============================================================
+function renderTodasApuestas() {
+  const sorted = [...DATA.apuestas].reverse();
+  const rows = sorted.map(a=>`<tr>
+    <td style="color:var(--muted);font-size:12px">${a.fecha}</td>
+    <td class="player-name">${a.jugador}</td>
+    <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis">${a.evento}</td>
+    <td>${a.apuesta}€</td><td>x${a.cuota}</td>
+    <td><span class="badge-${a.resultado==='WIN'?'win':a.resultado==='LOSE'?'lose':'pending'}">${a.resultado}</span></td>
+    <td class="${a.ganancia>=0?'profit-pos':'profit-neg'}">${a.ganancia>=0?'+':''}-${a.ganancia.toFixed(0)}€</td>
+    <td style="color:var(--muted);font-size:12px">${a.estado_admin||'aprobada'}</td>
+  </tr>`).join('');
+
+  return `
+    <div class="section-title">📋 Todas las Apuestas</div>
+    <div class="card">
+      <table class="data-table"><thead><tr><th>Fecha</th><th>Jugador</th><th>Evento</th><th>Apuesta</th><th>Cuota</th><th>Resultado</th><th>Ganancia</th><th>Estado</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+    </div>`;
+}
+
+// ============================================================
+// RENDER: ADMIN — GESTIONAR APUESTAS (aprobación + gestión)
+// ============================================================
+function renderAdminApuestas() {
+  const pendAdm = DATA.apuestas.filter(a=>a.estado_admin==='pendiente_admin');
+  const pendRes = DATA.apuestas.filter(a=>a.resultado==='PENDIENTE'&&a.estado_admin==='aprobada');
+  const ultimas = [...DATA.apuestas].reverse().slice(0,20);
+
+  const pendAdmRows = pendAdm.map(a=>`<tr>
+    <td class="player-name">${a.jugador}</td>
+    <td>${a.evento}</td>
+    <td>${a.apuesta}€</td>
+    <td><span style="color:var(--gold2)">x${a.cuota_propuesta} (propuesta)</span></td>
+    <td><input type="number" id="cuota-aprueba-${a.id}" value="${a.cuota_propuesta}" step="0.01" style="width:80px;background:var(--dark3);border:1px solid rgba(255,255,255,.1);color:var(--text);padding:6px 8px;border-radius:6px;font-size:14px"></td>
+    <td>
+      <button class="btn-small" onclick="aprobarApuesta(${a.id})">✅ Aprobar</button>
+      <button class="btn-danger" style="margin-left:4px" onclick="rechazarApuesta(${a.id})">❌ Rechazar</button>
+    </td>
+  </tr>`).join('');
+
+  const pendResRows = pendRes.map(a=>`<tr>
+    <td class="player-name">${a.jugador}</td>
+    <td>${a.evento}</td>
+    <td>${a.apuesta}€ x${a.cuota}</td>
+    <td>
+      <button class="btn-small" onclick="resolvebet(${a.id},'WIN')">✅ WIN</button>
+      <button class="btn-danger" style="margin-left:4px" onclick="resolvebet(${a.id},'LOSE')">❌ LOSE</button>
+    </td>
+  </tr>`).join('');
+
+  const allRows = ultimas.map(a=>`<tr>
+    <td style="color:var(--muted);font-size:12px">${a.fecha}</td>
+    <td>${a.jugador}</td>
+    <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis">${a.evento}</td>
+    <td>${a.apuesta}€</td><td>x${a.cuota}</td>
+    <td><span class="badge-${a.resultado==='WIN'?'win':a.resultado==='LOSE'?'lose':'pending'}">${a.resultado}</span></td>
+    <td class="${a.ganancia>=0?'profit-pos':'profit-neg'}">${a.ganancia>=0?'+':''}-${a.ganancia.toFixed(0)}€</td>
+    <td><button class="btn-danger" onclick="deleteBet(${a.id})">🗑</button></td>
+  </tr>`).join('');
+
+  return `
+    <div class="section-title">⚙️ Gestionar Apuestas</div>
+
+    ${pendAdm.length>0?`<div class="card" style="border-color:rgba(68,136,255,.3);margin-bottom:16px">
+      <div class="card-title" style="color:var(--blue)">⏳ ${pendAdm.length} Apuesta(s) Esperando Aprobación</div>
+      <table class="data-table"><thead><tr><th>Jugador</th><th>Evento</th><th>Apuesta</th><th>Cuota Propuesta</th><th>Cuota Final</th><th>Acción</th></tr></thead>
+      <tbody>${pendAdmRows}</tbody></table>
+    </div>`:''}
+
+    ${pendRes.length>0?`<div class="card" style="border-color:rgba(255,165,0,.3);margin-bottom:16px">
+      <div class="card-title" style="color:var(--gold2)">🎯 ${pendRes.length} Apuesta(s) Pendientes de Resultado</div>
+      <table class="data-table"><thead><tr><th>Jugador</th><th>Evento</th><th>Apuesta</th><th>Resolver</th></tr></thead>
+      <tbody>${pendResRows}</tbody></table>
+    </div>`:''}
+
+    <div class="admin-panel">
+      <div class="admin-title">➕ Añadir Apuesta Directa</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Jugador</label>
+          <select class="form-select" id="adm-jugador">${DATA.jugadores.map(j=>`<option>${j}</option>`).join('')}</select></div>
+        <div class="form-group"><label class="form-label">Cuota</label>
+          <input type="number" class="form-input" id="adm-cuota" placeholder="1.5" step="0.01" value="1.5"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Evento</label>
+        <input type="text" class="form-input" id="adm-evento" placeholder="Descripción..."></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Cantidad (€)</label>
+          <input type="number" class="form-input" id="adm-cantidad" placeholder="100"></div>
+        <div class="form-group"><label class="form-label">Resultado</label>
+          <select class="form-select" id="adm-resultado">
+            <option value="">Pendiente</option>
+            <option value="WIN">✅ WIN</option>
+            <option value="LOSE">❌ LOSE</option>
+          </select></div>
+      </div>
+      <button class="btn-primary" onclick="adminAddBet()">REGISTRAR</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Últimas 20 Apuestas</div>
+      <table class="data-table"><thead><tr><th>Fecha</th><th>Jugador</th><th>Evento</th><th>€</th><th>Cuota</th><th>Res.</th><th>Ganancia</th><th></th></tr></thead>
+      <tbody>${allRows}</tbody></table>
+    </div>`;
+}
+
+async function aprobarApuesta(id) {
+  const cuotaEl = document.getElementById('cuota-aprueba-' + id);
+  const cuota = parseFloat(cuotaEl ? cuotaEl.value : 1);
+  if (!cuota || cuota < 1) { showToast('⚠ Cuota inválida', 'error'); return; }
+  try {
+    await updateApuestaAdmin(id, { cuota, estado_admin: 'aprobada', resultado: 'PENDIENTE', ganancia: 0 });
+    const bet = DATA.apuestas.find(a=>a.id===id);
+    bet.cuota = cuota; bet.estado_admin = 'aprobada'; bet.resultado = 'PENDIENTE'; bet.ganancia = 0;
+    recalcBancas();
+    buildNav();
+    showToast('✅ Apuesta aprobada con cuota x' + cuota, 'success');
+    showPage('admin-apuestas');
+  } catch(e) {}
+}
+
+async function rechazarApuesta(id) {
+  if (!confirm('¿Rechazar esta apuesta? Se eliminará.')) return;
+  try {
+    await deleteApuestaDB(id);
+    DATA.apuestas = DATA.apuestas.filter(a=>a.id!==id);
+    buildNav();
+    showToast('❌ Apuesta rechazada', 'success');
+    showPage('admin-apuestas');
+  } catch(e) {}
+}
+
+async function resolvebet(id, res) {
+  const bet = DATA.apuestas.find(a=>a.id===id);
+  if (!bet) return;
+  const fin = calcFinanciero(bet.apuesta, bet.cuota, res);
+  try {
+    await updateApuestaResultado(id, res, fin.ganancia, fin.hacienda, fin.jackpot_contrib);
+    bet.resultado = res; bet.ganancia = fin.ganancia; bet.hacienda = fin.hacienda; bet.jackpot_contrib = fin.jackpot_contrib;
+    DATA.jackpotExtra += fin.jackpot_contrib;
+    await saveConfig('jackpotExtra', DATA.jackpotExtra);
+    recalcBancas();
+    showToast(`✅ ${res}: ganancia ${fin.ganancia>=0?'+':''}-${fin.ganancia.toFixed(0)}€`, 'success');
+    showPage('admin-apuestas');
+  } catch(e) {}
+}
+
+async function adminAddBet() {
+  const jugador = document.getElementById('adm-jugador').value;
+  const evento = document.getElementById('adm-evento').value.trim();
+  const cantidad = parseFloat(document.getElementById('adm-cantidad').value);
+  const cuota = parseFloat(document.getElementById('adm-cuota').value);
+  const resultado = document.getElementById('adm-resultado').value;
+  if (!evento||!cantidad||!cuota) { showToast('⚠ Rellena todos los campos', 'error'); return; }
+  const fin = resultado ? calcFinanciero(cantidad, cuota, resultado) : {ganancia:0,hacienda:0,jackpot_contrib:0};
+  const bet = {
+    fecha: new Date().toISOString().split('T')[0], jugador, evento, apuesta: cantidad, cuota,
+    resultado: resultado||'PENDIENTE', ganancia: fin.ganancia, hacienda: fin.hacienda, jackpot_contrib: fin.jackpot_contrib,
+    cuota_propuesta: null, estado_admin: 'aprobada'
+  };
+  try {
+    const newId = await saveApuesta(bet);
+    bet.id = newId; DATA.apuestas.push(bet);
+    if (resultado) DATA.jackpotExtra += fin.jackpot_contrib;
+    if (resultado) await saveConfig('jackpotExtra', DATA.jackpotExtra);
+    recalcBancas();
+    showToast('✅ Apuesta registrada', 'success');
+    showPage('admin-apuestas');
+  } catch(e) {}
+}
+
+async function deleteBet(id) {
+  if (!confirm('¿Borrar esta apuesta?')) return;
+  try {
+    await deleteApuestaDB(id);
+    DATA.apuestas = DATA.apuestas.filter(a=>a.id!==id);
+    recalcBancas();
+    showToast('🗑 Eliminada', 'success');
+    showPage('admin-apuestas');
+  } catch(e) {}
+}
+
+// ============================================================
+// RENDER: ADMIN — BANCO
+// ============================================================
+function renderAdminBanco() {
+  const rows = DATA.jugadores.map(j=>{
+    const vs = DATA.bancas[j] - 1000;
+    return `<tr>
+      <td class="player-name">${j}</td>
+      <td class="banca-val">${DATA.bancas[j].toFixed(0)}€</td>
+      <td class="${vs>=0?'profit-pos':'profit-neg'}">${vs>=0?'+':''}-${Math.abs(vs).toFixed(0)}€</td>
+      <td>
+        <input type="number" id="adj-${j}" placeholder="€" style="width:80px;background:var(--dark3);border:1px solid rgba(255,255,255,.1);color:var(--text);padding:6px 8px;border-radius:6px;font-size:14px">
+        <button class="btn-small" style="margin-left:6px" onclick="adjustBanca('${j}')">Ajustar</button>
+      </td>
+    </tr>`;
+  }).join('');
+  const jackpot = getJackpot();
+
+  return `
+    <div class="section-title">🏦 Gestión de Banca</div>
+    <div class="admin-panel">
+      <div class="admin-title">💰 Bancas Actuales</div>
+      <table class="data-table"><thead><tr><th>Jugador</th><th>Banca</th><th>vs Inicio</th><th>Ajuste</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+    </div>
+    <div class="admin-panel">
+      <div class="admin-title">🎰 Jackpot Manual</div>
+      <div class="mini-stat"><span class="mini-stat-label">Bote actual</span><span class="mini-stat-value" style="color:var(--gold)">${jackpot.toFixed(0)}€</span></div>
+      <div style="display:flex;gap:10px;align-items:center;margin-top:12px">
+        <input type="number" id="jackpot-adj" placeholder="Añadir/quitar" class="form-input" style="max-width:200px">
+        <button class="btn-primary" onclick="adjustJackpot()">AJUSTAR</button>
+      </div>
+    </div>`;
+}
+
+async function adjustBanca(jugador) {
+  const val = parseFloat(document.getElementById('adj-' + jugador).value);
+  if (isNaN(val)) { showToast('⚠ Introduce una cantidad', 'error'); return; }
+  const bet = { fecha: new Date().toISOString().split('T')[0], jugador, evento: '[ADMIN] Ajuste manual', apuesta: Math.abs(val), cuota: 1, resultado: val>=0?'AJUSTE+':'AJUSTE-', ganancia: val, hacienda:0, jackpot_contrib:0, cuota_propuesta:null, estado_admin:'aprobada' };
+  try {
+    const newId = await saveApuesta(bet);
+    bet.id = newId; DATA.apuestas.push(bet);
+    recalcBancas();
+    showToast(`✅ ${jugador}: ${val>0?'+':''}-${val}€`, 'success');
+    showPage('admin-banco');
+  } catch(e) {}
+}
+
+async function adjustJackpot() {
+  const val = parseFloat(document.getElementById('jackpot-adj').value);
+  if (isNaN(val)) { showToast('⚠ Introduce una cantidad', 'error'); return; }
+  DATA.jackpotExtra += val;
+  await saveConfig('jackpotExtra', DATA.jackpotExtra);
+  showToast(`✅ Jackpot: ${val>0?'+':''}-${val}€`, 'success');
+  showPage('admin-banco');
+}
+
+// ============================================================
+// RENDER: ADMIN — KAKAS
+// ============================================================
+const KAKA_CATALOG = [
+  { code:'K02', name:'🤡 Predicción ridícula', multa:300 },
+  { code:'K03', name:'📱 Ghostear el grupo', multa:200 },
+  { code:'K04', name:'🍺 Deuda no pagada', multa:400 },
+  { code:'K05', name:'🎭 Drama innecesario', multa:250 },
+  { code:'K06', name:'🔇 No aparecer al sorteo', multa:350 },
+  { code:'K07', name:'📸 Filtrar pantallazos', multa:1000 },
+  { code:'K08', name:'🥶 Excusa cutre', multa:300 },
+  { code:'K09', name:'🤥 Trampa detectada', multa:2000 },
+  { code:'K10', name:'😂 Fardar con apuesta ajena', multa:200 },
+];
+
+function renderAdminKakas() {
+  const kakaRows = DATA.kakas.length>0 ? DATA.kakas.map(k=>`<tr>
+    <td>${k.fecha}</td><td class="player-name">${k.jugador}</td>
+    <td>${k.kaka}</td><td class="profit-neg">-${k.multa}€</td>
+    <td>${k.notas||'—'}</td>
+    <td><button class="btn-danger" onclick="deleteKaka(${k.id})">🗑</button></td>
+  </tr>`).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">No hay kakas 😇</td></tr>';
+
+  // Muro de la vergüenza
+  const vergRows = DATA.jugadores.map(j => ({
+    j, total: DATA.kakas.filter(k=>k.jugador===j).reduce((s,k)=>s+k.multa,0),
+    count: DATA.kakas.filter(k=>k.jugador===j).length
+  })).sort((a,b)=>b.total-a.total).map((r,i)=>`<tr>
+    <td>${['💀','☠️','😈','😤','😑','😇'][i]}</td>
+    <td class="player-name">${r.j}</td>
+    <td>${r.count}</td>
+    <td class="profit-neg">${r.total}€</td>
+  </tr>`).join('');
+
+  return `
+    <div class="section-title">😈 Sistema de Kakas</div>
+    <div class="admin-panel">
+      <div class="admin-title">💀 Nuevo Kaka</div>
+      ${DATA.jugadores.some(jj => getInmunidadActiva(jj)) ? `
+      <div style="background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.2);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:13px">
+        🛡️ Jugadores con inmunidad activa: <strong style="color:var(--green)">${DATA.jugadores.filter(jj=>getInmunidadActiva(jj)).join(', ')}</strong> — no recibirán kakas
+      </div>` : ''}
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Jugador</label>
+          <select class="form-select" id="kaka-jugador" onchange="checkKakaInmunidad()">${DATA.jugadores.map(j=>{
+            const inm = getInmunidadActiva(j);
+            return `<option value="${j}">${j}${inm?' 🛡️':''}`;
+          }).join('')}</select></div>
+        <div class="form-group"><label class="form-label">Tipo de Kaka</label>
+          <select class="form-select" id="kaka-tipo" onchange="updateKakaMulta()">
+            ${KAKA_CATALOG.map(k=>`<option value="${k.code}" data-multa="${k.multa}">${k.name} (-${k.multa}€)</option>`).join('')}</select></div>
+      </div>
+      <div id="kaka-inmunidad-warn" style="display:none;background:rgba(255,165,0,.12);border:1px solid rgba(255,165,0,.4);border-radius:8px;padding:10px 14px;margin-bottom:12px;color:var(--gold2);font-size:13px;font-weight:600"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Multa (€)</label>
+          <input type="number" class="form-input" id="kaka-multa" value="${KAKA_CATALOG[0].multa}"></div>
+        <div class="form-group"><label class="form-label">Notas</label>
+          <input type="text" class="form-input" id="kaka-notas" placeholder="Motivo..."></div>
+      </div>
+      <button class="btn-primary" onclick="addKaka()">APLICAR KAKA 😈</button>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">😈 Kakas Aplicados</div>
+        <table class="data-table"><thead><tr><th>Fecha</th><th>Jugador</th><th>Kaka</th><th>Multa</th><th>Notas</th><th></th></tr></thead>
+        <tbody>${kakaRows}</tbody></table>
+      </div>
+      <div class="card">
+        <div class="card-title">😳 Muro de la Vergüenza</div>
+        <table class="data-table"><thead><tr><th></th><th>Jugador</th><th>Kakas</th><th>Total multas</th></tr></thead>
+        <tbody>${vergRows}</tbody></table>
+      </div>
+    </div>`;
+}
+
+function updateKakaMulta() {
+  const sel = document.getElementById('kaka-tipo');
+  document.getElementById('kaka-multa').value = sel.options[sel.selectedIndex].dataset.multa;
+  // Show immunity warning
+  const jugador = document.getElementById('kaka-jugador')?.value;
+  const warn = document.getElementById('kaka-inmunidad-warn');
+  if (warn && jugador) {
+    const inm = getInmunidadActiva(jugador);
+    warn.style.display = inm ? 'block' : 'none';
+    if (inm) warn.textContent = `⚠️ ${jugador} tiene inmunidad activa — le quedan ${diasRestantes(inm.expira)} día(s). El kaka no se podrá aplicar.`;
+  }
+}
+
+function checkKakaInmunidad() {
+  const jugador = document.getElementById('kaka-jugador')?.value;
+  const warn = document.getElementById('kaka-inmunidad-warn');
+  if (!warn || !jugador) return;
+  const inm = getInmunidadActiva(jugador);
+  warn.style.display = inm ? 'block' : 'none';
+  if (inm) warn.textContent = `⚠️ ${jugador} tiene INMUNIDAD activa — ${diasRestantes(inm.expira)} día(s) restantes. No se puede aplicar kaka.`;
+}
+
+async function addKaka() {
+  const jugador = document.getElementById('kaka-jugador').value;
+  // Check immunity
+  const inm = getInmunidadActiva(jugador);
+  if (inm) {
+    showToast(`🛡️ ${jugador} tiene inmunidad activa — ${diasRestantes(inm.expira)} día(s) restantes. No se puede aplicar kaka.`, 'error');
+    return;
+  }
+  const tipo = document.getElementById('kaka-tipo');
+  const kaka = tipo.options[tipo.selectedIndex].text.split(' (')[0];
+  const multa = parseFloat(document.getElementById('kaka-multa').value);
+  const notas = document.getElementById('kaka-notas').value;
+  if (!multa||multa<=0) { showToast('⚠ Multa inválida', 'error'); return; }
+
+  // Check immunity
+  const inmunidad = getInmunidadActiva(jugador);
+  if (inmunidad) {
+    const dias = diasRestantes(inmunidad.expira);
+    showToast(`🛡️ ${jugador} tiene inmunidad activa (${dias} día${dias!==1?'s':''} restante${dias!==1?'s':''}) — no se puede aplicar kaka`, 'error');
+    return;
+  }
+
+  const kakaObj = { fecha: new Date().toISOString().split('T')[0], jugador, kaka, multa, notas };
+  try {
+    const newId = await saveKaka(kakaObj);
+    kakaObj.id = newId; DATA.kakas.push(kakaObj);
+    recalcBancas();
+    showToast(`😈 Kaka a ${jugador}: -${multa}€`, 'success');
+    showPage('admin-kakas');
+  } catch(e) {}
+}
+
+async function deleteKaka(id) {
+  if (!confirm('¿Eliminar este kaka?')) return;
+  try {
+    await deleteKakaDB(id);
+    DATA.kakas = DATA.kakas.filter(k=>k.id!==id);
+    recalcBancas();
+    showToast('🗑 Kaka eliminado', 'success');
+    showPage('admin-kakas');
+  } catch(e) {}
+}
+
+// ============================================================
+// RENDER: ADMIN — CREDENCIALES
+// ============================================================
+function renderAdminCredenciales() {
+  const rows = Object.entries(PASSWORDS).map(([user,pw])=>`<tr>
+    <td class="player-name">${user}</td>
+    <td><code style="background:var(--dark3);padding:4px 10px;border-radius:6px;font-size:13px;color:var(--green)">${pw}</code></td>
+    ${user!=='ADMIN'?`<td>
+      <input type="text" id="newpw-${user}" placeholder="Nueva contraseña" style="width:160px;background:var(--dark3);border:1px solid rgba(255,255,255,.1);color:var(--text);padding:6px 10px;border-radius:6px;font-size:13px">
+      <button class="btn-small" style="margin-left:6px" onclick="adminCambiarPW('${user}')">Cambiar</button>
+    </td>`:''}
+  </tr>`).join('');
+
+  return `
+    <div class="section-title">🔑 Contraseñas</div>
+    <div class="admin-panel">
+      <div class="admin-title">🔐 Credenciales de Acceso</div>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:16px">⚠️ Solo visible para el administrador.</p>
+      <table class="data-table"><thead><tr><th>Usuario</th><th>Contraseña</th><th>Cambiar</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+    </div>`;
+}
+
+async function adminCambiarPW(user) {
+  const newpw = document.getElementById('newpw-' + user).value.trim();
+  if (newpw.length < 4) { showToast('⚠ Contraseña demasiado corta', 'error'); return; }
+  PASSWORDS[user] = newpw;
+  await saveConfig('passwords', JSON.stringify(PASSWORDS));
+  showToast(`✅ Contraseña de ${user} actualizada`, 'success');
+  showPage('admin-credenciales');
+}
+
+// ============================================================
+// RENDER: EVENTOS — APUESTAS TIPO POOL/POKER
+// ============================================================
+function renderEventos() {
+  const j = STATE.currentUser;
+  const banca = DATA.bancas[j] || 1000;
+  const activos = DATA.eventos.filter(e => e.estado === 'ACTIVO');
+  const cerrados = DATA.eventos.filter(e => e.estado !== 'ACTIVO');
+
+  const renderEvCard = (ev) => {
+    const misApuestas = (ev.apuestas_pool || []).filter(a => a.jugador === j);
+    const totalPool = (ev.apuestas_pool || []).reduce((s,a) => s+a.cantidad, 0);
+    const yaAposteLaOpcion = misApuestas.find(a => a.opcion === ev.opcion_ganadora_preview);
+    const opciones = ev.opciones || [];
+
+    const opcionesHTML = opciones.map(op => {
+      const apostadoresEnOp = (ev.apuestas_pool || []).filter(a => a.opcion === op);
+      const totalOp = apostadoresEnOp.reduce((s,a) => s+a.cantidad, 0);
+      const miApuestaEstaOp = misApuestas.find(a => a.opcion === op);
+      return `<div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <strong style="font-size:16px">${op}</strong>
+          <span class="evento-cuota-badge">x${ev.cuota}</span>
+        </div>
+        <div style="color:var(--muted);font-size:13px;margin-bottom:8px">
+          ${apostadoresEnOp.length} apostador(es) · ${totalOp}€ en esta opción
+          ${apostadoresEnOp.length > 0 ? '<div class="apostadores-list">' + apostadoresEnOp.map(a => `<span class="apostador-chip">${a.jugador} ${a.cantidad}€</span>`).join('') + '</div>' : ''}
+        </div>
+        ${ev.estado === 'ACTIVO' && !miApuestaEstaOp ? `
+        <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
+          <input type="number" id="ev-imp-${ev.id}-${op.replace(/\s/g,'_')}" placeholder="Cantidad €" min="1" max="${banca}" style="flex:1;background:var(--dark3);border:1px solid rgba(255,255,255,.1);color:var(--text);padding:8px 10px;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:15px">
+          <button class="btn-small" onclick="apostarEnEvento(${ev.id},'${op.replace(/'/g,"\\'")}')">APOSTAR</button>
+        </div>` : (miApuestaEstaOp ? `<div style="color:var(--green);font-size:13px">✅ Apostaste ${miApuestaEstaOp.cantidad}€ aquí</div>` : '')}
+      </div>`;
+    }).join('');
+
+    const estadoColor = ev.estado === 'ACTIVO' ? 'var(--green)' : ev.estado === 'RESUELTO' ? 'var(--gold)' : 'var(--muted)';
+    return `<div class="evento-card ${ev.estado === 'ACTIVO' ? 'activo' : 'cerrado'}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+        <div>
+          <div style="font-size:18px;font-weight:700">${ev.titulo}</div>
+          <div style="color:var(--muted);font-size:13px">${ev.descripcion || ''}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="color:${estadoColor};font-size:12px;letter-spacing:2px;font-weight:700">${ev.estado}</div>
+          <div style="color:var(--muted);font-size:12px">Pool total: <strong style="color:var(--gold)">${totalPool}€</strong></div>
+        </div>
+      </div>
+      ${opciones.length > 0 ? opcionesHTML : '<div style="color:var(--muted)">Sin opciones</div>'}
+      ${ev.estado === 'RESUELTO' ? `<div style="margin-top:12px;padding:12px;background:rgba(255,215,0,.08);border-radius:8px;border:1px solid rgba(255,215,0,.2)">
+        <span style="color:var(--gold);font-weight:700">🏆 Opción ganadora: ${ev.opcion_ganadora}</span>
+      </div>` : ''}
+    </div>`;
+  };
+
+  return `
+    <div class="section-title">🎯 Eventos Liga</div>
+    <div style="background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.1);border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:14px;color:var(--muted)">
+      El admin crea eventos con varias opciones y cuota fija. Los jugadores apuestan en la opción que quieran.
+      Cuando se cierra, <strong style="color:var(--text)">los que apostaron a la opción ganadora se reparten el pool según su aportación</strong>, con la cuota aplicada.
+    </div>
+    ${activos.length === 0 && cerrados.length === 0 ? `<div style="text-align:center;padding:60px;color:var(--muted)">
+      <div style="font-size:48px;margin-bottom:12px">🎯</div>
+      <div>No hay eventos activos. El admin creará el próximo evento.</div>
+    </div>` : ''}
+    ${activos.length > 0 ? `<div class="section-title" style="font-size:18px;color:var(--green)">📡 ACTIVOS</div>${activos.map(renderEvCard).join('')}` : ''}
+    ${cerrados.length > 0 ? `<div class="section-title" style="font-size:18px;color:var(--muted);margin-top:20px">📁 CERRADOS</div>${cerrados.map(renderEvCard).join('')}` : ''}
+  `;
+}
+
+async function apostarEnEvento(eventoId, opcion) {
+  const j = STATE.currentUser;
+  const ev = DATA.eventos.find(e => e.id === eventoId);
+  if (!ev || ev.estado !== 'ACTIVO') { showToast('⚠ Evento no disponible', 'error'); return; }
+  const inputId = `ev-imp-${eventoId}-${opcion.replace(/\s/g,'_')}`;
+  const cantidad = parseFloat(document.getElementById(inputId)?.value);
+  if (!cantidad || cantidad <= 0) { showToast('⚠ Introduce una cantidad', 'error'); return; }
+  if (cantidad > DATA.bancas[j]) { showToast('⚠ Banca insuficiente', 'error'); return; }
+  const yaAposto = (ev.apuestas_pool || []).find(a => a.jugador === j && a.opcion === opcion);
+  if (yaAposto) { showToast('⚠ Ya apostaste en esta opción', 'error'); return; }
+
+  // Descontar de banca
+  const bet = {
+    fecha: new Date().toISOString().split('T')[0], jugador: j,
+    evento: `[EVENTO] ${ev.titulo} — ${opcion}`, apuesta: cantidad, cuota: ev.cuota,
+    resultado: 'PENDIENTE', ganancia: 0, hacienda: 0, jackpot_contrib: 0,
+    cuota_propuesta: null, estado_admin: 'aprobada', evento_pool_id: eventoId
+  };
+  try {
+    const newId = await saveApuesta(bet); bet.id = newId;
+    DATA.apuestas.push(bet);
+    const pool = ev.apuestas_pool || [];
+    pool.push({ jugador: j, opcion, cantidad, bet_id: newId });
+    await updateEvento(eventoId, { apuestas_pool: pool });
+    recalcBancas();
+    showToast(`✅ Apostaste ${cantidad}€ en "${opcion}"`, 'success');
+    showPage('eventos');
+  } catch(e) { showToast('❌ Error al apostar', 'error'); }
+}
+
+// ============================================================
+// RENDER: ADMIN — GESTIÓN DE EVENTOS
+// ============================================================
+function renderAdminEventos() {
+  const evRows = DATA.eventos.map(ev => {
+    const totalPool = (ev.apuestas_pool || []).reduce((s,a) => s+a.cantidad, 0);
+    const opciones = ev.opciones || [];
+    return `<div class="evento-card ${ev.estado==='ACTIVO'?'activo':'cerrado'}" style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div>
+          <strong style="font-size:17px">${ev.titulo}</strong>
+          <div style="color:var(--muted);font-size:13px">Cuota: x${ev.cuota} · Pool: ${totalPool}€ · ${(ev.apuestas_pool||[]).length} apuestas</div>
+        </div>
+        <span style="color:${ev.estado==='ACTIVO'?'var(--green)':'var(--muted)'};font-size:12px;letter-spacing:2px">${ev.estado}</span>
+      </div>
+      <div style="margin-bottom:10px">
+        ${opciones.map(op => {
+          const enOp = (ev.apuestas_pool||[]).filter(a=>a.opcion===op);
+          return `<span style="display:inline-block;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:3px 10px;font-size:13px;margin-right:6px;margin-bottom:4px">${op} (${enOp.length} · ${enOp.reduce((s,a)=>s+a.cantidad,0)}€)</span>`;
+        }).join('')}
+      </div>
+      ${ev.estado === 'ACTIVO' ? `
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <label style="color:var(--muted);font-size:13px">Opción ganadora:</label>
+        <select id="ganadora-${ev.id}" style="background:var(--dark3);border:1px solid rgba(255,255,255,.1);color:var(--text);padding:6px 10px;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:14px">
+          ${opciones.map(op=>`<option value="${op}">${op}</option>`).join('')}
+        </select>
+        <button class="btn-small" onclick="cerrarEvento(${ev.id})">🏆 Cerrar y repartir</button>
+        <button class="btn-danger" onclick="cancelarEvento(${ev.id})">❌ Cancelar</button>
+      </div>` : (ev.estado === 'RESUELTO' ? `<div style="color:var(--gold);font-size:13px">🏆 Ganó: ${ev.opcion_ganadora}</div>` : `<div style="color:var(--muted);font-size:13px">Evento cancelado</div>`)}
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="section-title">🎯 Gestión de Eventos</div>
+    <div class="admin-panel">
+      <div class="admin-title">➕ Crear Nuevo Evento</div>
+      <div class="form-group">
+        <label class="form-label">Título del evento</label>
+        <input type="text" class="form-input" id="ev-titulo" placeholder="Ej: ¿Raúl aparece en clase mañana?">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descripción (opcional)</label>
+        <input type="text" class="form-input" id="ev-desc" placeholder="Detalles del evento...">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Cuota (igual para todos)</label>
+          <input type="number" class="form-input" id="ev-cuota" placeholder="2.0" step="0.1" value="2">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Opciones (separadas por coma)</label>
+          <input type="text" class="form-input" id="ev-opciones" placeholder="Sí, No">
+        </div>
+      </div>
+      <button class="btn-primary" onclick="crearEvento()">🎯 CREAR EVENTO</button>
+    </div>
+    <div class="card">
+      <div class="card-title">Eventos Registrados</div>
+      ${DATA.eventos.length > 0 ? evRows : '<div style="text-align:center;color:var(--muted);padding:30px">No hay eventos</div>'}
+    </div>`;
+}
+
+async function crearEvento() {
+  const titulo = document.getElementById('ev-titulo').value.trim();
+  const desc = document.getElementById('ev-desc').value.trim();
+  const cuota = parseFloat(document.getElementById('ev-cuota').value);
+  const opcionesRaw = document.getElementById('ev-opciones').value;
+  const opciones = opcionesRaw.split(',').map(o=>o.trim()).filter(Boolean);
+  if (!titulo) { showToast('⚠ Añade un título', 'error'); return; }
+  if (isNaN(cuota)||cuota<1) { showToast('⚠ Cuota inválida', 'error'); return; }
+  if (opciones.length < 2) { showToast('⚠ Al menos 2 opciones (separadas por coma)', 'error'); return; }
+  const ev = { titulo, descripcion: desc, cuota, opciones, apuestas_pool: [], estado: 'ACTIVO', fecha: new Date().toISOString().split('T')[0] };
+  try {
+    const newId = await saveEvento(ev); ev.id = newId;
+    DATA.eventos.push(ev);
+    showToast('✅ Evento creado', 'success');
+    showPage('admin-eventos');
+  } catch(e) { showToast('❌ Error', 'error'); }
+}
+
+async function cerrarEvento(eventoId) {
+  const ev = DATA.eventos.find(e=>e.id===eventoId);
+  if (!ev) return;
+  const ganadora = document.getElementById('ganadora-'+eventoId)?.value;
+  if (!ganadora) { showToast('⚠ Selecciona la opción ganadora', 'error'); return; }
+  if (!confirm(`¿Cerrar evento "${ev.titulo}"? La opción ganadora es: "${ganadora}". Se repartirá el pool entre los ganadores.`)) return;
+
+  // Ganadores = los que apostaron a la opción ganadora
+  const ganadores = (ev.apuestas_pool || []).filter(a => a.opcion === ganadora);
+  const perdedores = (ev.apuestas_pool || []).filter(a => a.opcion !== ganadora);
+  const totalPool = (ev.apuestas_pool || []).reduce((s,a) => s+a.cantidad, 0);
+
+  // Resolver apuestas de ganadores: WIN con cuota fijada
+  for (const g of ganadores) {
+    const bet = DATA.apuestas.find(b => b.id === g.bet_id);
+    if (bet && bet.resultado === 'PENDIENTE') {
+      const fin = calcFinanciero(g.cantidad, ev.cuota, 'WIN');
+      await updateApuestaResultado(g.bet_id, 'WIN', fin.ganancia, fin.hacienda, fin.jackpot_contrib);
+      bet.resultado='WIN'; bet.ganancia=fin.ganancia; bet.hacienda=fin.hacienda; bet.jackpot_contrib=fin.jackpot_contrib;
+      DATA.jackpotExtra+=fin.jackpot_contrib;
+    }
+  }
+  // Resolver apuestas de perdedores: LOSE
+  for (const p of perdedores) {
+    const bet = DATA.apuestas.find(b => b.id === p.bet_id);
+    if (bet && bet.resultado === 'PENDIENTE') {
+      const fin = calcFinanciero(p.cantidad, ev.cuota, 'LOSE');
+      await updateApuestaResultado(p.bet_id, 'LOSE', fin.ganancia, fin.hacienda, fin.jackpot_contrib);
+      bet.resultado='LOSE'; bet.ganancia=fin.ganancia; bet.hacienda=fin.hacienda; bet.jackpot_contrib=fin.jackpot_contrib;
+      DATA.jackpotExtra+=fin.jackpot_contrib;
+    }
+  }
+
+  await updateEvento(eventoId, { estado: 'RESUELTO', opcion_ganadora: ganadora });
+  await saveConfig('jackpotExtra', DATA.jackpotExtra);
+  recalcBancas();
+  const nGan = ganadores.length;
+  showToast(`🏆 Evento cerrado. ${nGan} ganador(es) en "${ganadora}". Pool: ${totalPool}€`, 'success');
+  showPage('admin-eventos');
+}
+
+async function cancelarEvento(eventoId) {
+  if (!confirm('¿Cancelar evento? Las apuestas pendientes serán devueltas.')) return;
+  const ev = DATA.eventos.find(e=>e.id===eventoId);
+  if (!ev) return;
+  // Devolver apuestas pendientes
+  for (const ap of (ev.apuestas_pool||[])) {
+    const bet = DATA.apuestas.find(b=>b.id===ap.bet_id);
+    if (bet && bet.resultado==='PENDIENTE') {
+      await updateApuestaResultado(ap.bet_id, 'AJUSTE+', ap.cantidad, 0, 0);
+      bet.resultado='AJUSTE+'; bet.ganancia=ap.cantidad;
+    }
+  }
+  await updateEvento(eventoId, { estado: 'CANCELADO' });
+  recalcBancas();
+  showToast('✅ Evento cancelado y apuestas devueltas', 'success');
+  showPage('admin-eventos');
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3000);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+loadFromSupabase();
+</script>
+</body>
+</html>
